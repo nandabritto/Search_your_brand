@@ -1,6 +1,7 @@
 {
   "postinstall": "cd ci-xterm && npm install",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "node": "^15.8.0",
     "node-static": "^0.7.11",
     "python-shell": "^2.0.3",
