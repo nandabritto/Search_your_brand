@@ -1,10 +1,6 @@
 # python code goes here
 import os
 import tweepy as tw
-from tweepy import Stream
-from tweepy import OAuthHandler
-from tweepy.streaming import StreamListener
-import pandas as pd
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 
@@ -21,8 +17,11 @@ auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
+"""
+ Code inspired and partially on earthdatascience.org and
+ ideoforms (https://www.erase.net/code/)
+"""
 
-# Code inspired and partially on earthdatascience.org and ideoforms (https://www.erase.net/code/)
 
 def geo_location():
     """
@@ -31,20 +30,21 @@ def geo_location():
     geolocator = Nominatim(user_agent="my_user_agent")
     city = input("Insert your city: \n")
     country = input("Insert your country: \n")
-    loc = geolocator.geocode(city+','+ country)
+    loc = geolocator.geocode(city + ',' + country)
     return loc
+
 
 def search_tweet():
     """
     Search tweets on Twitter in max range of 100km of user
     location, enable user to add search keyword, preferred
     language and outputs tweet text, tweet username, tweet
-    location, tweet coordenation and if geolocaton is 
+    location, tweet coordenation and if geolocaton is
     enable.
     """
     loc = geo_location()
-    latitude = loc.latitude    
-    longitude = loc.longitude 
+    latitude = loc.latitude
+    longitude = loc.longitude
     search_words = input("Add your keyword here: \n")
     language_search = input("Add your prefered language here: \n")
     new_search = search_words + "-filter:retweets"
@@ -55,12 +55,12 @@ def search_tweet():
                   q=new_search,
                   count=1000,
                   lang=language_search,
-                  geocode = "%f,%f,%dkm" % (latitude, longitude, max_range),
+                  geocode="%f,%f,%dkm" % (latitude, longitude, max_range),
                   tweet_mode='extended')
 
     maxCount = 5
     count = 0
-    for tweet in tweets.items():   
+    for tweet in tweets.items():
         if tweet.user.geo_enabled:
             print()
             print("Tweet Information")
@@ -79,5 +79,5 @@ def search_tweet():
         if count == maxCount:
             break
 
+
 search_tweet()
-#last line
