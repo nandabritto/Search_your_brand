@@ -1,7 +1,11 @@
 # python code goes here
 import os
 import tweepy as tw
+from tweepy import Stream
+from tweepy import OAuthHandler
+from tweepy.streaming import StreamListener
 import pandas as pd
+
 
 from dotenv import load_dotenv
 
@@ -19,24 +23,31 @@ api = tw.API(auth, wait_on_rate_limit=True)
 """
 Code based on earthdatascience.org
 """
-
 # Define the search term and the date_since date as input
-search_words = input("Add your keyword here: \n")
-date_since = input("Add your date range here: \n")
-language_search = input("Add your prefered language here: \n")
 
+search_words = input("Add your keyword here: \n")
+language_search = input("Add your prefered language here: \n")
 new_search = search_words + "-filter:retweets"
 
-# Collect tweets
 tweets = tw.Cursor(
               api.search,
               q=new_search,
+              count=5,
               lang=language_search,
-              since=date_since
-                  ).items(20)
+              tweet_mode='extended')
 
-tweets
 
-# Iterate and print tweets
-for tweet in tweets:
-    print(tweet.text, end='\n\n')
+maxCount = 5
+count = 0
+for tweet in tweets.items():    
+    print()
+    print("Tweet Information")
+    print("================================")
+    print("Text: ", tweet.full_text)
+    print()
+
+    count = count + 1
+    if count == maxCount:
+        break
+
+   
