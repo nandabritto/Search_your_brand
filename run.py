@@ -24,30 +24,29 @@ api = tw.API(auth, wait_on_rate_limit=True)
 Code based on earthdatascience.org
 """
 # Define the search term and the date_since date as input
+def search_tweet():
+    search_words = input("Add your keyword here: \n")
+    language_search = input("Add your prefered language here: \n")
+    new_search = search_words + "-filter:retweets"
 
-search_words = input("Add your keyword here: \n")
-language_search = input("Add your prefered language here: \n")
-new_search = search_words + "-filter:retweets"
+    tweets = tw.Cursor(
+                  api.search,
+                  q=new_search,
+                  count=5,
+                  lang=language_search,
+                  tweet_mode='extended')
 
-tweets = tw.Cursor(
-              api.search,
-              q=new_search,
-              count=5,
-              lang=language_search,
-              tweet_mode='extended')
+    maxCount = 5
+    count = 0
+    for tweet in tweets.items():    
+        print()
+        print("Tweet Information")
+        print("================================")
+        print("Text: ", tweet.full_text)
+        print()
 
+        count = count + 1
+        if count == maxCount:
+            break
 
-maxCount = 5
-count = 0
-for tweet in tweets.items():    
-    print()
-    print("Tweet Information")
-    print("================================")
-    print("Text: ", tweet.full_text)
-    print()
-
-    count = count + 1
-    if count == maxCount:
-        break
-
-   
+search_tweet()
