@@ -33,7 +33,9 @@ def main():
         args.city = input("Insert your city \n")
     if not args.country:
         args.country = input("Insert your country \n")
-    geo_location(args)
+    loc = geo_location(args)
+    print(loc)
+    search_tweet(loc)
 
 
 """
@@ -42,28 +44,25 @@ def main():
 """
 
 
-def geo_location():
+def geo_location(args):
     """
-    Get user location (by city and country) and outputs latitude and longitude
+    Get user location (by city and country) 
     """
+
     geolocator = Nominatim(user_agent="my_user_agent")
-    city = input("Insert your city: \n")
-    country = input("Insert your country: \n")
-    loc = geolocator.geocode(city + ',' + country)
+    loc = geolocator.geocode(args.city + ',' + args.country)
     return loc
 
 
-def search_tweet():
+def search_tweet(loc):
     """
-    Search tweets on Twitter in max range of 100km of user
-    location, enable user to add search keyword, preferred
-    language and outputs tweet text, tweet username, tweet
-    location, tweet coordenation and if geolocaton is
-    enable.
+    Gets user's latitude and longitude and search tweets
+    on Twitter in max range of 100km, enable user to add
+    search keyword, preferred language and outputs tweet
+    text, tweet username, and outputs tweet location,
+    tweet coordenation and if geolocaton is enable.
     """
-    loc = geo_location()
-    latitude = loc.latitude
-    longitude = loc.longitude
+
     search_words = input("Add your keyword here: \n")
     language_search = input("Add your prefered language here: \n")
     new_search = search_words + "-filter:retweets"
@@ -74,7 +73,8 @@ def search_tweet():
                   q=new_search,
                   count=1000,
                   lang=language_search,
-                  geocode="%f,%f,%dkm" % (latitude, longitude, max_range),
+                  geocode="%f,%f,%dkm" %
+                  (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
 
     maxCount = 5
@@ -99,4 +99,4 @@ def search_tweet():
             break
 
 
-search_tweet()
+main()
