@@ -3,6 +3,7 @@ import os
 import tweepy as tw
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
+import argparse
 
 
 load_dotenv()
@@ -16,6 +17,24 @@ access_token_secret = os.environ.get('ACCESS_TOKEN_SECRET')
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description='search for tweets by location and \
+                     keyword')
+    parser.add_argument(
+        '--city', type=str, help='Your city')
+    parser.add_argument(
+        '--country', type=str, help='Your country')
+    args = parser.parse_args()
+    print(args)
+    if not args.city:
+        args.city = input("Insert your city \n")
+    if not args.country:
+        args.country = input("Insert your country \n")
+    geo_location(args)
+
 
 """
  Code inspired and partially on earthdatascience.org and
