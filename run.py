@@ -1,6 +1,7 @@
 # python code goes here
 import os
 import tweepy as tw
+import pandas as pd
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 import argparse
@@ -102,18 +103,25 @@ def search_tweet(loc, args):
 
     new_search = args.keyword + "-filter:retweets"
 
-    max_range = 1000
+    max_range = 100
     tweets = tw.Cursor(
                   api.search,
                   q=new_search,
-                  count=1000,
+                  count=10,
                   lang=args.language,
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
 
-    maxCount = 5
-    count = 0
+    #maxCount = 10
+    #count = 0
+
+    json_data = [r._json for r in tweets.items()]
+
+    df = pd.json_normalize(json_data)
+    print(df[['created_at','user.name','full_text','user.location','user.geo_enabled']])
+"""
+
     for tweet in tweets.items():
         if tweet.user.geo_enabled:
             print()
@@ -128,10 +136,10 @@ def search_tweet(loc, args):
             print("Location: ", tweet.user.location)
             print("Coordinates: ", tweet.coordinates)
             print("Geo Enabled? ", tweet.user.geo_enabled)
-
-        count = count + 1
+                        
+            count = count + 1
         if count == maxCount:
             break
-
+    """
 
 main()
