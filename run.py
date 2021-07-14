@@ -4,9 +4,9 @@ import tweepy as tw
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 import argparse
-
-
 load_dotenv()
+
+
 """
 Twitter API keys
 """
@@ -18,23 +18,34 @@ auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
+"""
+Get arguments and assign inputs if arguments are empty and
+run all the functions
+"""
 
 def main():
+    #add description of task
     parser = argparse.ArgumentParser(
         description='search for tweets by location and \
                      keyword')
+    #add city argument
     parser.add_argument(
         '--city', type=str, help='Your city')
+    #add country argument
     parser.add_argument(
         '--country', type=str, help='Your country')
+    # array for all arguments passed to script
     args = parser.parse_args()
     print(args)
+    # assign inputs if arguments are empty
     if not args.city:
         args.city = input("Insert your city \n")
     if not args.country:
         args.country = input("Insert your country \n")
+    #assign variable to geo_location function
     loc = geo_location(args)
     print(loc)
+    #call function with geolocation argument
     search_tweet(loc)
 
 
@@ -46,10 +57,11 @@ def main():
 
 def geo_location(args):
     """
-    Get user location (by city and country) 
+    Get user location (by city and country)
     """
 
     geolocator = Nominatim(user_agent="my_user_agent")
+    # assign the args to variables with geolocator and geocode
     loc = geolocator.geocode(args.city + ',' + args.country)
     return loc
 
@@ -67,7 +79,7 @@ def search_tweet(loc):
     language_search = input("Add your prefered language here: \n")
     new_search = search_words + "-filter:retweets"
 
-    max_range = 100
+    max_range = 1000
     tweets = tw.Cursor(
                   api.search,
                   q=new_search,
