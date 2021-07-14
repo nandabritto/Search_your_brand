@@ -23,17 +23,24 @@ Get arguments and assign inputs if arguments are empty and
 run all the functions
 """
 
+
 def main():
-    #add description of task
+    # add description of task
     parser = argparse.ArgumentParser(
         description='search for tweets by location and \
                      keyword')
-    #add city argument
+    # add city argument
     parser.add_argument(
-        '--city', type=str, help='Your city')
-    #add country argument
+        '-ci, --city', type=str, help='Your city')
+    # add country argument
     parser.add_argument(
-        '--country', type=str, help='Your country')
+        '-co, --country', type=str, help='Your country')
+    # add keyword argument
+    parser.add_argument(
+        '-key, --keyword', type=str, help='Your keyword')
+    # add language argument
+    parser.add_argument(
+        '-lang, --language', type=str, help='Your prefered language')
     # array for all arguments passed to script
     args = parser.parse_args()
     print(args)
@@ -42,11 +49,15 @@ def main():
         args.city = input("Insert your city \n")
     if not args.country:
         args.country = input("Insert your country \n")
-    #assign variable to geo_location function
+    if not args.keyword:
+        args.keyword = input("Insert your keyword for searching \n")
+    if not args.language:
+        args.language = input("Insert your prefered language \n")
+    # assign variable to geo_location function
     loc = geo_location(args)
     print(loc)
-    #call function with geolocation argument
-    search_tweet(loc)
+    # call function with geolocation and args argument
+    search_tweet(loc, args)
 
 
 """
@@ -66,7 +77,7 @@ def geo_location(args):
     return loc
 
 
-def search_tweet(loc):
+def search_tweet(loc, args):
     """
     Gets user's latitude and longitude and search tweets
     on Twitter in max range of 100km, enable user to add
@@ -75,16 +86,14 @@ def search_tweet(loc):
     tweet coordenation and if geolocaton is enable.
     """
 
-    search_words = input("Add your keyword here: \n")
-    language_search = input("Add your prefered language here: \n")
-    new_search = search_words + "-filter:retweets"
+    new_search = args.keyword + "-filter:retweets"
 
     max_range = 1000
     tweets = tw.Cursor(
                   api.search,
                   q=new_search,
                   count=1000,
-                  lang=language_search,
+                  lang=args.language,
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
