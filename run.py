@@ -4,6 +4,8 @@ import tweepy as tw
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 import argparse
+import gspread
+from google.oauth2.service_account import Credentials
 load_dotenv()
 
 
@@ -18,6 +20,18 @@ auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
 
+SCOPE = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive"
+    ]
+
+CREDS = Credentials.from_service_account_file('creds.json')
+SCOPED_CREDS = CREDS.with_scopes(SCOPE)
+GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+SHEET = GSPREAD_CLIENT.open('search_your_brand')
+
+
 """
 Get arguments and assign inputs if arguments are empty and
 run all the functions
@@ -31,16 +45,16 @@ def main():
                      keyword')
     # add city argument
     parser.add_argument(
-        '-ci, --city', type=str, help='Your city')
+        '--city', type=str, help='Your city')
     # add country argument
     parser.add_argument(
-        '-co, --country', type=str, help='Your country')
+        '--country', type=str, help='Your country')
     # add keyword argument
     parser.add_argument(
-        '-key, --keyword', type=str, help='Your keyword')
+        '--keyword', type=str, help='Your keyword')
     # add language argument
     parser.add_argument(
-        '-lang, --language', type=str, help='Your prefered language')
+        '--language', type=str, help='Your prefered language')
     # array for all arguments passed to script
     args = parser.parse_args()
     print(args)
