@@ -112,34 +112,34 @@ def search_tweet(loc, args):
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
+    # maxCount = 5
+    # count = 0
 
-    #maxCount = 10
-    #count = 0
-
-    json_data = [r._json for r in tweets.items()]
-
+    json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
     df = pd.json_normalize(json_data)
-    print(df[['created_at','user.name','full_text','user.location','user.geo_enabled']])
-"""
+    new_df = (df[['user.screen_name', 'full_text', 'user.location']])
+    print(new_df[:5])
 
-    for tweet in tweets.items():
-        if tweet.user.geo_enabled:
-            print()
-            print("Tweet Information")
-            print("================================")
-            print("Text: ", tweet.full_text)
-            print()
+    # for index, tweet in new_df.iterrows():
+    #         # if tweet.user.geo_enabled:
+    #     print()
+    #     print("Tweet Information")
+    #     print("================================")
+    #     print(tweet['full_text'])
+    #     print()
 
-            print("User Information")
-            print("================================")
-            print("Username:", tweet.user.name)
-            print("Location: ", tweet.user.location)
-            print("Coordinates: ", tweet.coordinates)
-            print("Geo Enabled? ", tweet.user.geo_enabled)
-                        
-            count = count + 1
-        if count == maxCount:
-            break
-    """
+    #     print("User Information")
+    #     print("================================")
+    #     print("Username:", user.screen_name)
+    #     print("Location: ", user.location)
+    #     count = count + 1
+    #     if count == maxCount:
+    #         break
+    # df = pd.DataFrame({'username': [tweet.user.screen_name], 'Tweet': [tweet.full_text]})
+    # print(df)
+    # df = pd.json_normalize(json_data)
+    # new_df = (df[['user.screen_name','full_text', 'user.location']])
+    # print(new_df[:5]
+
 
 main()
