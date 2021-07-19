@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import argparse
 import gspread as gs
 import gspread_dataframe as gd
-
+import sys
 load_dotenv()
 
 
@@ -36,50 +36,47 @@ GoogleSpreadsheets API keys
 gc = gs.service_account(filename="creds.json")
 
 
-
-
 def get_args():
 
-"""
-Get arguments and assign inputs if arguments are empty and
-run all the functions
-"""
-
+    """
+    Get arguments and assign inputs if arguments are empty and
+    run all the functions
+    """
     # add description of task
     parser = argparse.ArgumentParser(
-        description='search for tweets by location and \
-                     keyword')
+        description='Search for tweets by location and keyword')
     # add city argument
     parser.add_argument(
-        '--city', type=str, help='Your city')
+        '-cy', '--city', type=str, help='Your city', required=True)
     # add country argument
     parser.add_argument(
-        '--country', type=str, help='Your country')
+        '-co', '--country', type=str, help='Your country', required=True)
     # add keyword argument
     parser.add_argument(
-        '--keyword', type=str, help='Your keyword')
+        '-key', '--keyword', type=str, help='Your keyword', required=True)
     # add language argument
     parser.add_argument(
-        '--language', type=str, help='Your prefered language')
-    # array for all arguments passed to script
-    args = parser.parse_args()
-    # assign inputs if arguments are empty
-    if not args.city:
-        args.city = input("Insert your city \n")
-    if not args.country:
-        args.country = input("Insert your country \n")
-    if not args.keyword:
-        args.keyword = input("Insert your keyword for searching \n")
-    if not args.language:
-        args.language = input("Insert your prefered language \n")
+        '-ln', '--language', type=str, help='Your preferred language',
+        default='en')
+    # add number of tweets argument
+    parser.add_argument(
+        '-tw', '--tweets', type=int,
+        help='Number of tweets added to your table', default=10)
+    # to be interactivity mode
 
-    return(args)
+    try:
+        args = parser.parse_args()
+    except SystemExit:
+        print("\n\nPlease see help below:")
+        parser.print_help()
+        sys.exit(0)
+    return args
 
 
 def main():
     """
     Call argparse from get_args, assign variable to geo_location function and
-    call search_tweets and update_worksheet 
+    call search_tweets and update_worksheet
     """
 
     parsed_args = get_args()
@@ -91,7 +88,7 @@ def main():
 
 def geo_location(args):
     """
-    Get user location (by city and country) and  assign the args to variables 
+    Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
 
@@ -120,28 +117,33 @@ def search_tweet(loc, args):
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
-   
-
     json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
     df = pd.json_normalize(json_data)
-    tweet_subset = (df[['created_at', 'user.screen_name', 'full_text', 'user.location', 'place.country']])
+    tweet_subset = (df[[
+        'created_at',
+        'user.screen_name',
+        'full_text',
+        'user.location']])
     tweets_df = tweet_subset.copy()
-    tweets_df.rename(columns={'created_at':'Created at', 'user.screen_name':'Username', 'full_text':'Tweet', 'user.location':'Location'}, inplace=True) 
-    print(tweets_df[:5])
-    return (tweets_df[:5])
-   
-
+    tweets_df.rename(columns={
+        'created_at': 'Created at',
+        'user.screen_name': 'Username',
+        'full_text': 'Tweet',
+        'user.location': 'Location'},
+         inplace=True)
+    print(tweets_df[:args.tweets])
+    return (tweets_df[:args.tweets])
 
 
 def update_worksheet(p_search_result):
     """
     Update sales worksheet, add new row with the dataframe created
     """
-    
+
     ws = gc.open("search_your_brand").worksheet("tweets")
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
-    
+
 
 main()
