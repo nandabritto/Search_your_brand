@@ -6,6 +6,7 @@ from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 import argparse
 import gspread as gs
+import gspread_dataframe as gd
 
 load_dotenv()
 
@@ -74,6 +75,7 @@ def main():
     print(loc)
     # call function with geolocation and args argument
     search_result = search_tweet(loc, parsed_args)
+    update_worksheet(search_result)
 
 
 def geo_location(args):
@@ -135,6 +137,17 @@ def search_tweet(loc, args):
     # df = pd.json_normalize(json_data)
     # new_df = (df[['user.screen_name','full_text', 'user.location']])
     # print(new_df[:5]
+
+
+
+def update_worksheet(p_search_result):
+    """
+    Update sales worksheet, add new row with the dataframe created
+    """
+    ws = gc.open("search_your_brand").worksheet("tweets")
+    existing = gd.get_as_dataframe(ws)
+    updated = existing.append(p_search_result)
+    gd.set_with_dataframe(ws, updated)
 
 
 main()
