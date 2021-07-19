@@ -5,8 +5,8 @@ import pandas as pd
 from geopy.geocoders import Nominatim
 from dotenv import load_dotenv
 import argparse
-import gspread
-from google.oauth2.service_account import Credentials
+import gspread as gs
+
 load_dotenv()
 
 
@@ -27,19 +27,15 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
-CREDS = Credentials.from_service_account_file('creds.json')
-SCOPED_CREDS = CREDS.with_scopes(SCOPE)
-GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
-SHEET = GSPREAD_CLIENT.open('search_your_brand')
 
-
+gc = gs.service_account(filename="creds.json")
 """
 Get arguments and assign inputs if arguments are empty and
 run all the functions
 """
 
 
-def main():
+def get_args():
     # add description of task
     parser = argparse.ArgumentParser(
         description='search for tweets by location and \
@@ -58,7 +54,6 @@ def main():
         '--language', type=str, help='Your prefered language')
     # array for all arguments passed to script
     args = parser.parse_args()
-    print(args)
     # assign inputs if arguments are empty
     if not args.city:
         args.city = input("Insert your city \n")
@@ -68,17 +63,17 @@ def main():
         args.keyword = input("Insert your keyword for searching \n")
     if not args.language:
         args.language = input("Insert your prefered language \n")
+
+    return(args)
+
+
+def main():
+    parsed_args = get_args()
     # assign variable to geo_location function
-    loc = geo_location(args)
+    loc = geo_location(parsed_args)
     print(loc)
     # call function with geolocation and args argument
-    search_tweet(loc, args)
-
-
-"""
- Code inspired and partially on earthdatascience.org and
- ideoforms (https://www.erase.net/code/)
-"""
+    search_result = search_tweet(loc, parsed_args)
 
 
 def geo_location(args):
@@ -119,7 +114,7 @@ def search_tweet(loc, args):
     df = pd.json_normalize(json_data)
     new_df = (df[['user.screen_name', 'full_text', 'user.location']])
     print(new_df[:5])
-
+    return (new_df[:5])
     # for index, tweet in new_df.iterrows():
     #         # if tweet.user.geo_enabled:
     #     print()
