@@ -29,14 +29,22 @@ SCOPE = [
     ]
 
 
+"""
+GoogleSpreadsheets API keys
+"""
+
 gc = gs.service_account(filename="creds.json")
+
+
+
+
+def get_args():
+
 """
 Get arguments and assign inputs if arguments are empty and
 run all the functions
 """
 
-
-def get_args():
     # add description of task
     parser = argparse.ArgumentParser(
         description='search for tweets by location and \
@@ -69,22 +77,25 @@ def get_args():
 
 
 def main():
+    """
+    Call argparse from get_args, assign variable to geo_location function and
+    call search_tweets and update_worksheet 
+    """
+
     parsed_args = get_args()
-    # assign variable to geo_location function
     loc = geo_location(parsed_args)
     print(loc)
-    # call function with geolocation and args argument
     search_result = search_tweet(loc, parsed_args)
     update_worksheet(search_result)
 
 
 def geo_location(args):
     """
-    Get user location (by city and country)
+    Get user location (by city and country) and  assign the args to variables 
+    with geolocator and geocode
     """
 
     geolocator = Nominatim(user_agent="my_user_agent")
-    # assign the args to variables with geolocator and geocode
     loc = geolocator.geocode(args.city + ',' + args.country)
     return loc
 
@@ -109,36 +120,16 @@ def search_tweet(loc, args):
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
                   tweet_mode='extended')
-    # maxCount = 5
-    # count = 0
+   
 
     json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
     df = pd.json_normalize(json_data)
-    tweet_subset = (df[['user.screen_name', 'full_text', 'user.location']])
+    tweet_subset = (df[['created_at', 'user.screen_name', 'full_text', 'user.location', 'place.country']])
     tweets_df = tweet_subset.copy()
-    tweets_df.rename(columns={'user.screen_name':'Username', 'full_text':'Tweet', 'user.location':'Location'}, inplace=True) 
+    tweets_df.rename(columns={'created_at':'Created at', 'user.screen_name':'Username', 'full_text':'Tweet', 'user.location':'Location'}, inplace=True) 
     print(tweets_df[:5])
     return (tweets_df[:5])
-    # for index, tweet in new_df.iterrows():
-    #         # if tweet.user.geo_enabled:
-    #     print()
-    #     print("Tweet Information")
-    #     print("================================")
-    #     print(tweet['full_text'])
-    #     print()
-
-    #     print("User Information")
-    #     print("================================")
-    #     print("Username:", user.screen_name)
-    #     print("Location: ", user.location)
-    #     count = count + 1
-    #     if count == maxCount:
-    #         break
-    # df = pd.DataFrame({'username': [tweet.user.screen_name], 'Tweet': [tweet.full_text]})
-    # print(df)
-    # df = pd.json_normalize(json_data)
-    # new_df = (df[['user.screen_name','full_text', 'user.location']])
-    # print(new_df[:5]
+   
 
 
 
@@ -146,6 +137,7 @@ def update_worksheet(p_search_result):
     """
     Update sales worksheet, add new row with the dataframe created
     """
+    
     ws = gc.open("search_your_brand").worksheet("tweets")
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
