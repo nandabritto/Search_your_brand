@@ -114,9 +114,11 @@ def search_tweet(loc, args):
 
     json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
     df = pd.json_normalize(json_data)
-    new_df = (df[['user.screen_name', 'full_text', 'user.location']])
-    print(new_df[:5])
-    return (new_df[:5])
+    tweet_subset = (df[['user.screen_name', 'full_text', 'user.location']])
+    tweets_df = tweet_subset.copy()
+    tweets_df.rename(columns={'user.screen_name':'Username', 'full_text':'Tweet', 'user.location':'Location'}, inplace=True) 
+    print(tweets_df[:5])
+    return (tweets_df[:5])
     # for index, tweet in new_df.iterrows():
     #         # if tweet.user.geo_enabled:
     #     print()
@@ -148,6 +150,6 @@ def update_worksheet(p_search_result):
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
-
+    
 
 main()
