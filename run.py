@@ -22,6 +22,9 @@ access_token_secret = os.environ.get('ACCESS_TOKEN_SECRET')
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
+gspreadsheet = os.environ.get('GSPREADSHEET')
+search_result_sheet = os.environ.get('SEARCH_RESULT_SHEET')
+countloc_tweets_sheet = os.environ.get('COUNTLOC_TWEETS_SHEET')
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -84,9 +87,9 @@ def main():
     loc = geo_location(parsed_args)
     print(loc)
     tweets_df,search_result = search_tweet(loc, parsed_args)
-    update_worksheet(search_result)
-    tweet_location_count(tweets_df,parsed_args)
-    
+    update_worksheet(search_result_sheet,search_result)
+    count_loc = tweet_location_count(tweets_df,parsed_args)
+    update_worksheet(countloc_tweets_sheet,count_loc)
 
 
 def geo_location(args):
@@ -140,16 +143,18 @@ def search_tweet(loc, args):
 def tweet_location_count(tweets_df,args):
     my_location = tweets_df.groupby("Location")
     print(my_location["Location"].count().sort_values(ascending=False))
+    return (my_location["Location"].count().sort_values(ascending=False))
 
-def update_worksheet(p_search_result):
+def update_worksheet(p_sheet, p_search_result):
     """
     Update sales worksheet, add new row with the dataframe created
     """
 
-    ws = gc.open("search_your_brand").worksheet("tweets")
+    ws = gc.open(gspreadsheet).worksheet(p_sheet)
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
+    
 
 
 main()
