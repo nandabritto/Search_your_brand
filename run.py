@@ -8,6 +8,7 @@ import argparse
 import gspread as gs
 import gspread_dataframe as gd
 import sys
+import collections
 load_dotenv()
 
 
@@ -82,8 +83,10 @@ def main():
     parsed_args = get_args()
     loc = geo_location(parsed_args)
     print(loc)
-    search_result = search_tweet(loc, parsed_args)
+    tweets_df,search_result = search_tweet(loc, parsed_args)
     update_worksheet(search_result)
+    tweet_location_count(tweets_df,parsed_args)
+    
 
 
 def geo_location(args):
@@ -112,7 +115,7 @@ def search_tweet(loc, args):
     tweets = tw.Cursor(
                   api.search,
                   q=new_search,
-                  count=10,
+                  count=1000,
                   lang=args.language,
                   geocode="%f,%f,%dkm" %
                   (float(loc.latitude), float(loc.longitude), max_range),
@@ -132,8 +135,11 @@ def search_tweet(loc, args):
         'user.location': 'Location'},
          inplace=True)
     print(tweets_df[:args.tweets])
-    return (tweets_df[:args.tweets])
+    return tweets_df, (tweets_df[:args.tweets])
 
+def tweet_location_count(tweets_df,args):
+    my_location = tweets_df.groupby("Location")
+    print(my_location["Location"].count().sort_values(ascending=False))
 
 def update_worksheet(p_search_result):
     """
