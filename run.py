@@ -91,15 +91,11 @@ def main():
 
     parsed_args = get_args()
     loc = geo_location(parsed_args)
-    print(loc)
+    print(f'\n{"User defined Location:"}{loc} \n')
 
-    try:
-        tweets_df, search_result = search_tweet(loc, parsed_args)
-        count_loc = tweet_location_count(tweets_df, parsed_args)
-    except Exception:
-        print('\n Sorry, We cannnot connect to Tweet. '  
-        'Please check your local settings \n')
-        sys.exit(0)
+    tweets_df, search_result = search_tweet(loc, parsed_args)
+    count_loc = tweet_location_count(tweets_df, parsed_args)
+   
     try:
         gc = gs.service_account(filename="creds.json")
     except Exception:
@@ -120,12 +116,22 @@ def geo_location(args):
     Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
-# try/except
-    geolocator = Nominatim(user_agent="my_user_agent")
-    loc = geolocator.geocode(args.city + ',' + args.country)
-    return loc
+    try:
+        geolocator = Nominatim(user_agent="my_user_agent")
+        geoloc = {'city':args.city,'country':args.country}
+        loc = geolocator.geocode(geoloc)
 
+        if loc is None:
+            raise 
+        else:
+            return loc
+    except Exception:
+        print("\n Fatal Error: Unable to resolve country and city for "
+            "geolocation. \n Please review your parameters \n") 
+        sys.exit(0)
+        
 
+    
 def search_tweet(loc, args):
     """
     Gets user's latitude and longitude and search tweets
@@ -154,6 +160,7 @@ def search_tweet(loc, args):
         'full_text',
         'user.location']])
     tweets_df = tweet_subset.copy()
+            
     tweets_df.rename(columns={
         'created_at': 'Created at',
         'user.screen_name': 'Username',
