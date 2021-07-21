@@ -19,9 +19,17 @@ consumer_key = os.environ.get('API_KEY')
 consumer_secret = os.environ.get('API_SECRET_KEY')
 access_token = os.environ.get('ACCESS_TOKEN')
 access_token_secret = os.environ.get('ACCESS_TOKEN_SECRET')
+
+"""
+Setting up autenthication
+"""
 auth = tw.OAuthHandler(consumer_key, consumer_secret)
 auth.set_access_token(access_token, access_token_secret)
 api = tw.API(auth, wait_on_rate_limit=True)
+
+"""
+GoogleSpreadsheets API keys
+"""
 gspreadsheet = os.environ.get('GSPREADSHEET')
 search_result_sheet = os.environ.get('SEARCH_RESULT_SHEET')
 countloc_tweets_sheet = os.environ.get('COUNTLOC_TWEETS_SHEET')
@@ -32,12 +40,11 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
-
-"""
-GoogleSpreadsheets API keys
-"""
-
-gc = gs.service_account(filename="creds.json")
+try:
+    gc = gs.service_account(filename="creds.json")
+except Exception as e:
+    print('Sorry, Oauth failed. Please check your cred.json file')
+    
 
 
 def get_args():
@@ -49,12 +56,12 @@ def get_args():
     # add description of task
     parser = argparse.ArgumentParser(
         description='Search for tweets by location and keyword')
-    # add city argument
-    parser.add_argument(
-        '-cy', '--city', type=str, help='Your city', required=True)
     # add country argument
     parser.add_argument(
         '-co', '--country', type=str, help='Your country', required=True)
+    # add city argument
+    parser.add_argument(
+        '-cy', '--city', type=str, help='Your city', required=True)      
     # add keyword argument
     parser.add_argument(
         '-key', '--keyword', type=str, help='Your keyword', required=True)
@@ -74,6 +81,8 @@ def get_args():
         print("\n\nPlease see help below:")
         parser.print_help()
         sys.exit(0)
+    except Exception as e:
+        print('Sorry an unknown error occurred. Exception: %s', e)
     return args
 
 
@@ -97,7 +106,7 @@ def geo_location(args):
     Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
-
+#try/except
     geolocator = Nominatim(user_agent="my_user_agent")
     loc = geolocator.geocode(args.city + ',' + args.country)
     return loc
@@ -156,5 +165,5 @@ def update_worksheet(p_sheet, p_search_result):
     gd.set_with_dataframe(ws, updated)
     
 
-
-main()
+if __name__ == "__main__":
+    main()
