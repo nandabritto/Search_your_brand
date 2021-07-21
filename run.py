@@ -40,11 +40,6 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
-try:
-    gc = gs.service_account(filename="creds.json")
-except Exception as e:
-    print('Sorry, Oauth failed. Please check your cred.json file')
-    
 
 
 def get_args():
@@ -73,7 +68,10 @@ def get_args():
     parser.add_argument(
         '-tw', '--tweets', type=int,
         help='Number of tweets added to your table', default=10)
-    # to be interactivity mode
+    # save on google spreedsheets option
+    parser.add_argument(
+        '-gs', '--gsave', type=str, choices=['yes', 'no'],
+        help='Save your data on Google Spreadsheet', default='yes')
 
     try:
         args = parser.parse_args()
@@ -96,10 +94,19 @@ def main():
     loc = geo_location(parsed_args)
     print(loc)
     tweets_df,search_result = search_tweet(loc, parsed_args)
-    update_worksheet(search_result_sheet,search_result)
     count_loc = tweet_location_count(tweets_df,parsed_args)
-    update_worksheet(countloc_tweets_sheet,count_loc)
 
+    try:
+        gc = gs.service_account(filename="creds.json")
+    except Exception as e:
+        print('\n Sorry, Oauth failed. '
+            'Please check your cred.json file if you want to save your'
+            'data on google spreadsheets.\n')
+        parsed_args.gsave = 'no' 
+
+    if parsed_args.gsave == 'yes':
+        update_worksheet(search_result_sheet,search_result)
+        update_worksheet(countloc_tweets_sheet,count_loc)
 
 def geo_location(args):
     """
