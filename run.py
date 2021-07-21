@@ -10,14 +10,23 @@ import gspread_dataframe as gd
 import sys
 load_dotenv()
 
+def get_env_variable(var_name):
+    """
+    Get twitter API keys on .env file
+    """
+    try:
+        return os.environ.get(var_name)
+    except KeyError:
+        error_msg = "Set the %s environment variable" % var_name
+        raise RuntimeError(error_msg)
 
 """
 Twitter API keys
 """
-API_KEY = os.environ.get('API_KEY')
-API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
-ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
-ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
+API_KEY = get_env_variable('API_KEY')
+API_SECRET_KEY = get_env_variable('API_SECRET_KEY')
+ACCESS_TOKEN = get_env_variable('ACCESS_TOKEN')
+ACCESS_TOKEN_SECRET = get_env_variable('ACCESS_TOKEN_SECRET')
 
 
 """
@@ -85,10 +94,9 @@ def get_args():
 
 def main():
     """
-    Call argparse from get_args, assign variable to geo_location function and
+    Get Twitter API keys, call argparse from get_args, assign variable to geo_location function and
     call search_tweets and update_worksheet
     """
-
     parsed_args = get_args()
     loc = geo_location(parsed_args)
     print(f'\n{"User defined Location:"}{loc} \n')
