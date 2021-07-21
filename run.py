@@ -8,38 +8,36 @@ import argparse
 import gspread as gs
 import gspread_dataframe as gd
 import sys
-import collections
 load_dotenv()
 
 
 """
 Twitter API keys
 """
-consumer_key = os.environ.get('API_KEY')
-consumer_secret = os.environ.get('API_SECRET_KEY')
-access_token = os.environ.get('ACCESS_TOKEN')
-access_token_secret = os.environ.get('ACCESS_TOKEN_SECRET')
+API_KEY = os.environ.get('API_KEY')
+API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
+ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
+ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
 
 """
 Setting up autenthication
 """
-auth = tw.OAuthHandler(consumer_key, consumer_secret)
-auth.set_access_token(access_token, access_token_secret)
+auth = tw.OAuthHandler(API_KEY, API_SECRET_KEY)
+auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tw.API(auth, wait_on_rate_limit=True)
 
 """
 GoogleSpreadsheets API keys
 """
-gspreadsheet = os.environ.get('GSPREADSHEET')
-search_result_sheet = os.environ.get('SEARCH_RESULT_SHEET')
-countloc_tweets_sheet = os.environ.get('COUNTLOC_TWEETS_SHEET')
+GSPREADSHEET = os.environ.get('GSPREADSHEET')
+SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
+COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
     ]
-
 
 
 def get_args():
@@ -56,7 +54,7 @@ def get_args():
         '-co', '--country', type=str, help='Your country', required=True)
     # add city argument
     parser.add_argument(
-        '-cy', '--city', type=str, help='Your city', required=True)      
+        '-cy', '--city', type=str, help='Your city', required=True)
     # add keyword argument
     parser.add_argument(
         '-key', '--keyword', type=str, help='Your keyword', required=True)
@@ -93,27 +91,30 @@ def main():
     parsed_args = get_args()
     loc = geo_location(parsed_args)
     print(loc)
-    tweets_df,search_result = search_tweet(loc, parsed_args)
-    count_loc = tweet_location_count(tweets_df,parsed_args)
+    tweets_df, search_result = search_tweet(loc, parsed_args)
+    count_loc = tweet_location_count(tweets_df, parsed_args)
 
     try:
         gc = gs.service_account(filename="creds.json")
-    except Exception as e:
-        print('\n Sorry, Oauth failed. '
-            'Please check your cred.json file if you want to save your'
-            'data on google spreadsheets.\n')
-        parsed_args.gsave = 'no' 
+    except Exception:
+        print(
+            '\n Sorry, Oauth failed. '
+            'Please check your cred.json file if you want to save your '
+            'data on google spreadsheets.\n'
+            )
+        parsed_args.gsave = 'no'
 
     if parsed_args.gsave == 'yes':
-        update_worksheet(search_result_sheet,search_result)
-        update_worksheet(countloc_tweets_sheet,count_loc)
+        update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
+        update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
+
 
 def geo_location(args):
     """
     Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
-#try/except
+# try/except
     geolocator = Nominatim(user_agent="my_user_agent")
     loc = geolocator.geocode(args.city + ',' + args.country)
     return loc
@@ -156,21 +157,23 @@ def search_tweet(loc, args):
     print(tweets_df[:args.tweets])
     return tweets_df, (tweets_df[:args.tweets])
 
-def tweet_location_count(tweets_df,args):
+
+def tweet_location_count(tweets_df, args):
     my_location = tweets_df.groupby("Location")
     print(my_location["Location"].count().sort_values(ascending=False))
     return (my_location["Location"].count().sort_values(ascending=False))
 
-def update_worksheet(p_sheet, p_search_result):
+
+def update_worksheet(gc, p_sheet, p_search_result):
     """
     Update sales worksheet, add new row with the dataframe created
     """
 
-    ws = gc.open(gspreadsheet).worksheet(p_sheet)
+    ws = gc.open(GSPREADSHEET).worksheet(p_sheet)
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
-    
+
 
 if __name__ == "__main__":
     main()
