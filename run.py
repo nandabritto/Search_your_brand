@@ -15,10 +15,11 @@ def get_env_variable(var_name):
     Get twitter API keys on .env file
     """
     try:
-        return os.environ.get(var_name)
-    except KeyError:
-        error_msg = "Set the %s environment variable" % var_name
-        raise RuntimeError(error_msg)
+        return os.environ[var_name]
+    except KeyError: 
+        print(f' \n {"Fatal Error:"} {var_name} {"environment variable required"}\n')
+        sys.exit(0)
+
 
 """
 Twitter API keys
