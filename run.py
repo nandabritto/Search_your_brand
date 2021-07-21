@@ -19,6 +19,7 @@ API_SECRET_KEY = os.environ.get('API_SECRET_KEY')
 ACCESS_TOKEN = os.environ.get('ACCESS_TOKEN')
 ACCESS_TOKEN_SECRET = os.environ.get('ACCESS_TOKEN_SECRET')
 
+
 """
 Setting up autenthication
 """
@@ -91,9 +92,14 @@ def main():
     parsed_args = get_args()
     loc = geo_location(parsed_args)
     print(loc)
-    tweets_df, search_result = search_tweet(loc, parsed_args)
-    count_loc = tweet_location_count(tweets_df, parsed_args)
 
+    try:
+        tweets_df, search_result = search_tweet(loc, parsed_args)
+        count_loc = tweet_location_count(tweets_df, parsed_args)
+    except Exception:
+        print('\n Sorry, We cannnot connect to Tweet. '  
+        'Please check your local settings \n')
+        sys.exit(0)
     try:
         gc = gs.service_account(filename="creds.json")
     except Exception:
