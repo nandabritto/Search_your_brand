@@ -10,13 +10,14 @@ import gspread_dataframe as gd
 import sys
 load_dotenv()
 
+
 def get_env_variable(var_name):
     """
     Get twitter API keys on .env file
     """
     try:
         return os.environ[var_name]
-    except KeyError: 
+    except KeyError:
         print(f' \n {"Fatal Error:"} {var_name} {"environment variable required"}\n')
         sys.exit(0)
 
@@ -95,8 +96,8 @@ def get_args():
 
 def main():
     """
-    Get Twitter API keys, call argparse from get_args, assign variable to geo_location function and
-    call search_tweets and update_worksheet
+    Get Twitter API keys, call argparse from get_args, assign variable 
+    to geo_location function and call search_tweets and update_worksheet.
     """
     parsed_args = get_args()
     loc = geo_location(parsed_args)
@@ -104,10 +105,10 @@ def main():
 
     tweets_df, search_result = search_tweet(loc, parsed_args)
     count_loc = tweet_location_count(tweets_df, parsed_args)
-   
+        
     try:
         gc = gs.service_account(filename="creds.json")
-    except Exception:
+    except Exception as e:
         print(
             '\n Sorry, Oauth failed. '
             'Please check your cred.json file if you want to save your '
@@ -127,20 +128,19 @@ def geo_location(args):
     """
     try:
         geolocator = Nominatim(user_agent="my_user_agent")
-        geoloc = {'city':args.city,'country':args.country}
+        geoloc = {'city': args.city, 'country': args.country}
         loc = geolocator.geocode(geoloc)
 
         if loc is None:
-            raise 
+            raise Exception
         else:
             return loc
-    except Exception:
-        print("\n Fatal Error: Unable to resolve country and city for "
-            "geolocation. \n Please review your parameters \n") 
+    except Exception as e_geoloc:
+        e_geoloc.message = "\n Fatal Error: Unable to resolve country and city for geolocation. \n Please review your parameters \n"
+        print(e_geoloc.message)
         sys.exit(0)
-        
 
-    
+
 def search_tweet(loc, args):
     """
     Gets user's latitude and longitude and search tweets
@@ -153,31 +153,39 @@ def search_tweet(loc, args):
     new_search = args.keyword + "-filter:retweets"
 
     max_range = 100
-    tweets = tw.Cursor(
-                  api.search,
-                  q=new_search,
-                  count=1000,
-                  lang=args.language,
-                  geocode="%f,%f,%dkm" %
-                  (float(loc.latitude), float(loc.longitude), max_range),
-                  tweet_mode='extended')
-    json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
-    df = pd.json_normalize(json_data)
-    tweet_subset = (df[[
-        'created_at',
-        'user.screen_name',
-        'full_text',
-        'user.location']])
-    tweets_df = tweet_subset.copy()
-            
-    tweets_df.rename(columns={
-        'created_at': 'Created at',
-        'user.screen_name': 'Username',
-        'full_text': 'Tweet',
-        'user.location': 'Location'},
-         inplace=True)
-    print(tweets_df[:args.tweets])
-    return tweets_df, (tweets_df[:args.tweets])
+
+    try:
+        tweets = tw.Cursor(
+                      api.search,
+                      q=new_search,
+                      count=1000,
+                      lang=args.language,
+                      geocode="%f,%f,%dkm" %
+                      (float(loc.latitude), float(loc.longitude), max_range),
+                      tweet_mode='extended')
+        
+        json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
+        df = pd.json_normalize(json_data)
+        tweet_subset = (df[[
+            'created_at',
+            'user.screen_name',
+            'full_text',
+            'user.location']])
+        tweets_df = tweet_subset.copy()
+        tweets_df.rename(columns={
+                    'created_at': 'Created at',
+                    'user.screen_name': 'Username',
+                    'full_text': 'Tweet','user.location': 'Location'},
+                    inplace=True)
+        print(tweets_df[:args.tweets])
+        return tweets_df, (tweets_df[:args.tweets])
+    except Exception as e:
+        if tw.TweepError:
+            print("Fatal Error: Cannot connect on Twitter. \n"
+            "Please, Check you API keys. \n")
+            sys.exit(0)
+       
+
 
 
 def tweet_location_count(tweets_df, args):
@@ -195,6 +203,11 @@ def update_worksheet(gc, p_sheet, p_search_result):
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
+
+
+
+
+
 
 
 if __name__ == "__main__":
