@@ -4,5 +4,5 @@ core.python*
 env.py
 __pycache__/
 *.py[cod]
-.env
+keys.env
 creds.json
