@@ -96,7 +96,7 @@ def get_args():
 
 def main():
     """
-    Get Twitter API keys, call argparse from get_args, assign variable 
+    Get Twitter API keys, call argparse from get_args, assign variable
     to geo_location function and call search_tweets and update_worksheet.
     """
     parsed_args = get_args()
@@ -105,7 +105,7 @@ def main():
 
     tweets_df, search_result = search_tweet(loc, parsed_args)
     count_loc = tweet_location_count(tweets_df, parsed_args)
-        
+
     try:
         gc = gs.service_account(filename="creds.json")
     except Exception as e:
@@ -163,30 +163,33 @@ def search_tweet(loc, args):
                       geocode="%f,%f,%dkm" %
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
-    
-    json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
-    df = pd.json_normalize(json_data)
-    df['Keyword'] = args.keyword
-    df['Language'] = args.language
-    tweet_subset = (df[[
+
+        json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
+        df = pd.json_normalize(json_data)
+        df['Keyword'] = args.keyword
+        df['Language'] = args.language
+        tweet_subset = (df[[
             'Keyword',
             'Language',
             'created_at',
             'user.screen_name',
             'full_text',
             'user.location']])
-    tweets_df = tweet_subset.copy()
-    tweets_df.rename(columns={
+        tweets_df = tweet_subset.copy()
+        tweets_df.rename(columns={
                     'created_at': 'Created at',
                     'user.screen_name': 'Username',
                     'full_text': 'Tweet','user.location': 'Location'},
                     inplace=True)
-    print(tweets_df[:args.tweets])
-    return tweets_df, (tweets_df[:args.tweets])
- 
-    except Exception as e_tweets:
-        print("Sorry!", e_tweets)
+        print(tweets_df[:args.tweets])
+        return tweets_df, (tweets_df[:args.tweets])
+
+    except Exception as e_tweets :
+        print("Sorry, an error has occured: \n", e_tweets)
         sys.exit(0)
+    else:
+        return tweets
+        return tweets_df, (tweets_df[:args.tweets])
 
 
 def tweet_location_count(tweets_df, args):
