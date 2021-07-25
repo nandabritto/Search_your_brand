@@ -136,7 +136,7 @@ def geo_location(args):
         else:
             return loc
     except Exception as e_geoloc:
-        e_geoloc.message = "\n Fatal Error: Unable to resolve country and city for geolocation. \n Please review your parameters \n"
+        e_geoloc.message = ["\n Fatal Error: Unable to resolve country and city for geolocation. \n Please review your parameters \n"]
         print(e_geoloc.message)
         sys.exit(0)
 
@@ -163,29 +163,30 @@ def search_tweet(loc, args):
                       geocode="%f,%f,%dkm" %
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
-        
-        json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
-        df = pd.json_normalize(json_data)
-        tweet_subset = (df[[
+    
+    json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
+    df = pd.json_normalize(json_data)
+    df['Keyword'] = args.keyword
+    df['Language'] = args.language
+    tweet_subset = (df[[
+            'Keyword',
+            'Language',
             'created_at',
             'user.screen_name',
             'full_text',
             'user.location']])
-        tweets_df = tweet_subset.copy()
-        tweets_df.rename(columns={
+    tweets_df = tweet_subset.copy()
+    tweets_df.rename(columns={
                     'created_at': 'Created at',
                     'user.screen_name': 'Username',
                     'full_text': 'Tweet','user.location': 'Location'},
                     inplace=True)
-        print(tweets_df[:args.tweets])
-        return tweets_df, (tweets_df[:args.tweets])
-    except Exception as e:
-        if tw.TweepError:
-            print("Fatal Error: Cannot connect on Twitter. \n"
-            "Please, Check you API keys. \n")
-            sys.exit(0)
-       
-
+    print(tweets_df[:args.tweets])
+    return tweets_df, (tweets_df[:args.tweets])
+ 
+    except Exception as e_tweets:
+        print("Sorry!", e_tweets)
+        sys.exit(0)
 
 
 def tweet_location_count(tweets_df, args):
@@ -203,11 +204,6 @@ def update_worksheet(gc, p_sheet, p_search_result):
     existing = gd.get_as_dataframe(ws)
     updated = existing.append(p_search_result)
     gd.set_with_dataframe(ws, updated)
-
-
-
-
-
 
 
 if __name__ == "__main__":
