@@ -8,6 +8,7 @@ import argparse
 import gspread as gs
 import gspread_dataframe as gd
 import sys
+import time
 load_dotenv()
 
 
@@ -18,7 +19,8 @@ def get_env_variable(var_name):
     try:
         return os.environ[var_name]
     except KeyError:
-        print(f' \n {"Fatal Error:"} {var_name} {"environment variable required"}\n')
+        print(f' \n {"Fatal Error:"} {var_name}'
+              f' {"environment variable required"}\n')
         sys.exit(0)
 
 
@@ -101,25 +103,35 @@ def main():
     """
     parsed_args = get_args()
     loc = geo_location(parsed_args)
-    print(f'\n{"User defined Location:"}{loc} \n')
+    print(f'\n Welcome to Search your Brand on Twitter\n\n'
+          f'{" User defined Location:"}{loc} \n')
+    time.sleep(3)
 
+    print(f' This is your tweets search results based on your arguments:\n\n'
+          f' Keyword: {parsed_args.keyword}\n'
+          f' Country: {parsed_args.country}\n'
+          f' City: {parsed_args.city}\n'
+          f' Language: {parsed_args.language}\n')
+    time.sleep(3)
     tweets_df, search_result = search_tweet(loc, parsed_args)
+    print(f'\nYour table is saved on Google Spreadsheets file: {GSPREADSHEET}'
+          f' and worksheet: {SEARCH_RESULT_SHEET}')
     count_loc = tweet_location_count(tweets_df, parsed_args)
+
+    print(f'\nYour table is saved on Google Spreadsheets file: {GSPREADSHEET}'
+          f' and worksheet: {COUNTLOC_TWEETS_SHEET}')
 
     try:
         gc = gs.service_account(filename="creds.json")
-    except Exception as e:
-        print(
-            '\n Sorry, Oauth failed. '
-            'Please check your cred.json file if you want to save your '
-            'data on google spreadsheets.\n'
-            )
+    except Exception as e_Oauth:
+        print('\n Sorry, Oauth failed.'
+              'Please check your cred.json file if you want to save your '
+              'data on google spreadsheets.\n')
         parsed_args.gsave = 'no'
 
     if parsed_args.gsave == 'yes':
         update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
         update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
-        print(count_loc)
 
 
 def geo_location(args):
@@ -137,7 +149,8 @@ def geo_location(args):
         else:
             return loc
     except Exception as e_geoloc:
-        e_geoloc.message = ["\n Fatal Error: Unable to resolve country and city for geolocation. \n Please review your parameters \n"]
+        e_geoloc.message = '\n Fatal Error: Unable to resolve country and'
+        'city for geolocation. \n Please review your parameters \n'
         print(e_geoloc.message)
         sys.exit(0)
 
@@ -169,7 +182,7 @@ def search_tweet(loc, args):
         df = pd.json_normalize(json_data)
         df['Keyword'] = args.keyword
         df['Language'] = args.language
-        df['Search Date']= pd.to_datetime("today")
+        df['Search Date'] = pd.to_datetime("today")
         tweet_subset = (df[[
             'Search Date',
             'Keyword',
@@ -182,27 +195,37 @@ def search_tweet(loc, args):
         tweets_df.rename(columns={
                     'created_at': 'Created at',
                     'user.screen_name': 'Username',
-                    'full_text': 'Tweet','user.location': 'Location'},
+                    'full_text': 'Tweet', 'user.location': 'Location'},
                     inplace=True)
+
         print(tweets_df[:args.tweets])
         return tweets_df, (tweets_df[:args.tweets])
 
-    except Exception as e_tweets :
+    except Exception as e_tweets:
         print("Sorry, an error has occured: \n", e_tweets)
         sys.exit(0)
     else:
-        return tweets
         return tweets_df, (tweets_df[:args.tweets])
 
 
 def tweet_location_count(tweets_df, args):
-    my_location = tweets_df.groupby("Location")
-    my_location_grouped = my_location["Location"].count().sort_values(ascending=False).reset_index(name="Number of Users")
-    my_location_grouped['Keyword'] = args.keyword
-    my_location_grouped['Search Date'] = pd.to_datetime("today")
-    my_location_rearranged = my_location_grouped[['Search Date', 'Keyword','Location', 'Number of Users']]  
-    return my_location_rearranged
 
+    try:
+        my_location = tweets_df.groupby("Location")
+        my_location_grouped = my_location["Location"].count().sort_values(
+            ascending=False).reset_index(name="Number of Users")
+        my_location_grouped['Keyword'] = args.keyword
+        my_location_grouped['Search Date'] = pd.to_datetime("today")
+        my_location_rearranged = my_location_grouped[[
+            'Search Date', 'Keyword', 'Location', 'Number of Users']]
+
+        time.sleep(3)
+        print(f'  \n\nSumary of Tweets by Location\n\n'
+              f' {my_location_rearranged}')
+        return my_location_rearranged
+    except Exception as e_location_count:
+        print(f'An error has ocurred: {e_location_count}'
+              f'\nWe cannot deliver tweets by location table.')
 
 
 def update_worksheet(gc, p_sheet, p_search_result):
