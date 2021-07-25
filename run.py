@@ -113,18 +113,18 @@ def main():
           f' Country: {parsed_args.country}\n'
           f' City: {parsed_args.city}\n'
           f' Language: {parsed_args.language}')
- 
+
     time.sleep(2)
 
     tweets_df, search_result = search_tweet(loc, parsed_args)
- 
-    print(f'\nYour Tweets table is saved on Google Spreadsheets file: {GSPREADSHEET}.'
-          f' and worksheet: {SEARCH_RESULT_SHEET}')
-  
+
+    print(f'\nYour Tweets table is saved on Google Spreadsheets file: '
+          f'{GSPREADSHEET}. and worksheet: {SEARCH_RESULT_SHEET}')
+
     count_loc = tweet_location_count(tweets_df, parsed_args)
 
-    print(f'\nYour Tweets location table is saved on Google Spreadsheets file: {GSPREADSHEET}'
-          f' and worksheet: {COUNTLOC_TWEETS_SHEET}.')
+    print(f'\nYour Tweets location table is saved on Google Spreadsheets file:'
+          f' {GSPREADSHEET} and worksheet: {COUNTLOC_TWEETS_SHEET}.')
 
     try:
         gc = gs.service_account(filename="creds.json")
@@ -164,7 +164,7 @@ def geo_location(args):
 def search_tweet(loc, args):
     """
     Gets user's latitude and longitude and search tweets on Twitter in max
-    range of 100km, enable user to add search keyword, preferred language 
+    range of 100km, enable user to add search keyword, preferred language
     and outputs tweet text, tweet username, and outputs tweet location, tweet
     coordenation and if geolocaton is enable.
     """
@@ -183,7 +183,7 @@ def search_tweet(loc, args):
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
 
-        json_data = [r._json for r in tweets.items() if r.user.geo_enabled]
+        json_data = [r._json for r in tweets.items()]
         df = pd.json_normalize(json_data)
         df['Keyword'] = args.keyword
         df['Language'] = args.language
@@ -231,7 +231,7 @@ def tweet_location_count(tweets_df, args):
 
         if args.verbose:
             print(f'  \n\nSumary of Tweets by Location\n\n'
-                f' {my_location_rearranged}')
+                  f' {my_location_rearranged}')
         return my_location_rearranged
 
     except Exception as e_location_count:
