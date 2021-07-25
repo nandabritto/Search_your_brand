@@ -119,6 +119,7 @@ def main():
     if parsed_args.gsave == 'yes':
         update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
         update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
+        print(count_loc)
 
 
 def geo_location(args):
@@ -194,8 +195,12 @@ def search_tweet(loc, args):
 
 def tweet_location_count(tweets_df, args):
     my_location = tweets_df.groupby("Location")
-    print(my_location["Location"].count().sort_values(ascending=False))
-    return (my_location["Location"].count().sort_values(ascending=False))
+    my_location_grouped = my_location["Location"].count().sort_values(ascending=False).reset_index(name="Number of Users")
+    my_location_grouped['Keyword'] = args.keyword
+    my_location_grouped['Search Date'] = pd.to_datetime("today")
+    my_location_rearranged = my_location_grouped[['Search Date', 'Keyword','Location', 'Number of Users']]  
+    return my_location_rearranged
+
 
 
 def update_worksheet(gc, p_sheet, p_search_result):
