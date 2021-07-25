@@ -1,4 +1,3 @@
-# python code goes here
 import os
 import tweepy as tw
 import pandas as pd
@@ -122,11 +121,11 @@ def main():
           f' and worksheet: {COUNTLOC_TWEETS_SHEET}')
 
     try:
-        gc = gs.service_account(filename="creds.json")
+        gc = gs.service_account(filename="cred.json")
     except Exception as e_Oauth:
-        print('\n Sorry, Oauth failed.'
-              'Please check your cred.json file if you want to save your '
-              'data on google spreadsheets.\n')
+        print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
+              f'Please check your creds.json file if you want to save your '
+              f'data on google spreadsheets.\n')
         parsed_args.gsave = 'no'
 
     if parsed_args.gsave == 'yes':
@@ -209,6 +208,10 @@ def search_tweet(loc, args):
 
 
 def tweet_location_count(tweets_df, args):
+    """
+    Gets tweets and group by location, create a count column with number of
+    users on that location and sort values. Add Keyword and Seach Date column.
+    """
 
     try:
         my_location = tweets_df.groupby("Location")
@@ -230,7 +233,7 @@ def tweet_location_count(tweets_df, args):
 
 def update_worksheet(gc, p_sheet, p_search_result):
     """
-    Update sales worksheet, add new row with the dataframe created
+    Update sales worksheet, add new row with the dataframe created.
     """
 
     ws = gc.open(GSPREADSHEET).worksheet(p_sheet)
