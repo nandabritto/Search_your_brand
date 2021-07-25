@@ -78,11 +78,13 @@ def get_args():
     # add number of tweets argument
     parser.add_argument(
         '-tw', '--tweets', type=int,
-        help='Number of tweets added to your table', default=10)
+        help='Number of tweets added to your table', default=15)
     # save on google spreedsheets option
     parser.add_argument(
         '-gs', '--gsave', type=str, choices=['yes', 'no'],
         help='Save your data on Google Spreadsheet', default='yes')
+    parser.add_argument(
+        '-v', '--verbose', action="store_true", help='Print outputs')
 
     try:
         args = parser.parse_args()
@@ -102,26 +104,30 @@ def main():
     """
     parsed_args = get_args()
     loc = geo_location(parsed_args)
-    print(f'\n Welcome to Search your Brand on Twitter\n\n'
-          f'{" User defined Location:"}{loc} \n')
-    time.sleep(3)
+    print(f'\n Welcome to Search your Brand on Twitter!\n\n'
+          f'{" User defined location: "}{loc} \n')
+    time.sleep(2)
 
     print(f' This is your tweets search results based on your arguments:\n\n'
           f' Keyword: {parsed_args.keyword}\n'
           f' Country: {parsed_args.country}\n'
           f' City: {parsed_args.city}\n'
-          f' Language: {parsed_args.language}\n')
-    time.sleep(3)
+          f' Language: {parsed_args.language}')
+ 
+    time.sleep(2)
+
     tweets_df, search_result = search_tweet(loc, parsed_args)
-    print(f'\nYour table is saved on Google Spreadsheets file: {GSPREADSHEET}'
+ 
+    print(f'\nYour Tweets table is saved on Google Spreadsheets file: {GSPREADSHEET}.'
           f' and worksheet: {SEARCH_RESULT_SHEET}')
+  
     count_loc = tweet_location_count(tweets_df, parsed_args)
 
-    print(f'\nYour table is saved on Google Spreadsheets file: {GSPREADSHEET}'
-          f' and worksheet: {COUNTLOC_TWEETS_SHEET}')
+    print(f'\nYour Tweets location table is saved on Google Spreadsheets file: {GSPREADSHEET}'
+          f' and worksheet: {COUNTLOC_TWEETS_SHEET}.')
 
     try:
-        gc = gs.service_account(filename="cred.json")
+        gc = gs.service_account(filename="creds.json")
     except Exception as e_Oauth:
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
               f'Please check your creds.json file if you want to save your '
@@ -138,6 +144,7 @@ def geo_location(args):
     Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
+
     try:
         geolocator = Nominatim(user_agent="my_user_agent")
         geoloc = {'city': args.city, 'country': args.country}
@@ -156,11 +163,10 @@ def geo_location(args):
 
 def search_tweet(loc, args):
     """
-    Gets user's latitude and longitude and search tweets
-    on Twitter in max range of 100km, enable user to add
-    search keyword, preferred language and outputs tweet
-    text, tweet username, and outputs tweet location,
-    tweet coordenation and if geolocaton is enable.
+    Gets user's latitude and longitude and search tweets on Twitter in max
+    range of 100km, enable user to add search keyword, preferred language 
+    and outputs tweet text, tweet username, and outputs tweet location, tweet
+    coordenation and if geolocaton is enable.
     """
 
     new_search = args.keyword + "-filter:retweets"
@@ -196,9 +202,9 @@ def search_tweet(loc, args):
                     'user.screen_name': 'Username',
                     'full_text': 'Tweet', 'user.location': 'Location'},
                     inplace=True)
-
-        print(tweets_df[:args.tweets])
-        return tweets_df, (tweets_df[:args.tweets])
+        if args.verbose:
+            print(f'\n {tweets_df[:args.tweets]}')
+        return tweets_df, tweets_df[:args.tweets]
 
     except Exception as e_tweets:
         print("Sorry, an error has occured: \n", e_tweets)
@@ -221,11 +227,13 @@ def tweet_location_count(tweets_df, args):
         my_location_grouped['Search Date'] = pd.to_datetime("today")
         my_location_rearranged = my_location_grouped[[
             'Search Date', 'Keyword', 'Location', 'Number of Users']]
-
         time.sleep(3)
-        print(f'  \n\nSumary of Tweets by Location\n\n'
-              f' {my_location_rearranged}')
+
+        if args.verbose:
+            print(f'  \n\nSumary of Tweets by Location\n\n'
+                f' {my_location_rearranged}')
         return my_location_rearranged
+
     except Exception as e_location_count:
         print(f'An error has ocurred: {e_location_count}'
               f'\nWe cannot deliver tweets by location table.')
@@ -233,7 +241,7 @@ def tweet_location_count(tweets_df, args):
 
 def update_worksheet(gc, p_sheet, p_search_result):
     """
-    Update sales worksheet, add new row with the dataframe created.
+    Update spreadsheet, add new rows with the data created.
     """
 
     ws = gc.open(GSPREADSHEET).worksheet(p_sheet)
