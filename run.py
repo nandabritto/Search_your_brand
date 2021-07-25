@@ -169,7 +169,9 @@ def search_tweet(loc, args):
         df = pd.json_normalize(json_data)
         df['Keyword'] = args.keyword
         df['Language'] = args.language
+        df['Search Date']= pd.to_datetime("today")
         tweet_subset = (df[[
+            'Search Date',
             'Keyword',
             'Language',
             'created_at',
