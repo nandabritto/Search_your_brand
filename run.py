@@ -8,6 +8,7 @@ import gspread_dataframe as gd
 import sys
 import time
 import json
+import webbrowser
 load_dotenv()
 
 
@@ -59,7 +60,7 @@ def main():
     Get Twitter API keys, get input data, assign variable
     to geo_location function and call search_tweets and update_worksheet.
     """
-    print("n Welcome to Search your Brand on Twitter!\n")
+    print("\n Welcome to Search your Brand on Twitter!\n")
 
     country = input(" Write your country: \n ")
     city = input("\n Write your city: \n "
@@ -78,7 +79,7 @@ def main():
     print(f'\n User defined location: "{loc} \n ')
     time.sleep(2)
 
-    print(f' This is your tweets search results based on your arguments:\n\n'
+    print(f' This is your tweets search results based on your parameters:\n\n'
           f' Keyword: {keyword.capitalize()}\n'
           f' Country: {country.capitalize()}\n'
           f' City: {city.capitalize()}\n'
@@ -94,8 +95,8 @@ def main():
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    g_save = input('\n Do you like to save data on Google Spreadsheets?'
-                   ' [yes/no]?\n')
+    g_save = input(' Do you like to save data on Google Spreadsheets?'
+                   ' [yes/no]?\n ')
 
     try:
         gc = gs.service_account_from_dict(creds, scopes=SCOPE)
@@ -111,8 +112,11 @@ def main():
             update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
             update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
         except Exception:
-            print("Unable to save into worksheet")
+            print(" Unable to save into worksheet")
 
+        print(f'\n Your Tweets location table is saved on Google Spreadsheets file: {GSPREADSHEET}')
+        tweets_location_link = "https://docs.google.com/spreadsheets/d/119RMhPRwjaPrSZqhRqdr8tUnV4vew6GNRTYIep-7Ixk/edit?usp=sharing"
+        print(f' {tweets_location_link}\n')
 
 def geo_location(city, country):
     """
@@ -121,7 +125,7 @@ def geo_location(city, country):
     """
 
     try:
-        print(f"\n Finding geolocation for city: {city.capitalize()},"
+        print(f" Finding geolocation for city: {city.capitalize()},"
               f" country: {country.capitalize()}")
         geolocator = Nominatim(user_agent="my_user_agent")
         geoloc = {'city': city, 'country': country}
@@ -186,12 +190,13 @@ def search_tweet(loc, city, country, keyword, language, output):
                     'user.location': 'Location'},
                     inplace=True)
         if output == "yes":
-            print(f'Tweets based on your search.\n\n {tweets_df[:15]}')
+            print(f' Tweets based on your search.\n\n {tweets_df[:15]}')
 
         return tweets_df, tweets_df[:15]
 
     except Exception as e_tweets:
-        print("Sorry, an error has occured: \n", e_tweets)
+        print(f'{" Sorry, an error has occured: "}\n {e_tweets} \n '
+              f'{"Check your Twitter API keys"}\n')
         sys.exit(0)
     else:
         return tweets_df, (tweets_df[:15])
@@ -214,8 +219,8 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
         time.sleep(3)
 
         if output == "yes":
-            print("\n Summary of Tweets by Location\n\n"
-                  " {my_location_rearranged}\n")
+            print(f'\n {"Summary of Tweets by Location"}\n\n'
+                  f' {my_location_rearranged}\n')
 
         return my_location_rearranged
 
