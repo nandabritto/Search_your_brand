@@ -61,18 +61,38 @@ def main():
     """
     print("\nWelcome to Search your Brand on Twitter!\n")
 
-    country = input("Write your country: \n  ")
-    city = input("\nWrite your city: \n"
-                 "If your city has more than 1 word, please, use cotes.\n"
-                 "Example: 'Rio de Janeiro'\n ")
-    keyword = input("\nWrite your search keyword: \n"
+    try:
+       country = input("Write your country: \n> ")
+       if not country:
+           print("\nCountry parameter cannot be empty\n")
+           raise Exception
+
+       city = input("\nWrite your city: \n"
+                 "If your city has more than 1 word, please, use quotes.\n"
+                 "Example: 'Rio de Janeiro'\n> ")
+       if not city:
+           print("\nCity parameter cannot be empty\n")
+           raise Exception
+
+       keyword = input("\nWrite your search keyword: \n"
                     "If you would like to add more than one keyword, "
-                    "please, use cotes. \n ")
-    language = input(
-        "\nChoose your language: \n[en/es/pt/de] \n "
+                    "please, use quotes. \n> ")
+       if not keyword:
+           print("\nKeyword parameter cannot be empty\n")
+           raise Exception
+
+       language = input(
+        "\nChoose your language: \n[en/es/pt/de] \n> "
         ).lower()
-    if language not in ["en", "es", "pt", "de"]:
-        language = "en"
+       if language not in ["en", "es", "pt", "de"]:
+          print("\nLanguage not in one of supported languages. Default to en.\n")
+          language = "en"
+    except Exception:
+        print("\nFatal Error: Required parameter missing\n")
+        if input("Do you like to restart? [yes/no]: \n> ").lower() == "yes":
+            main()
+        else:
+            sys.exit(1)
 
     loc = geo_location(city, country)
     print(f'\nUser defined location: "{loc} \n ')
@@ -84,7 +104,7 @@ def main():
           f' City: {city.capitalize()}\n'
           f' Language: {language}')
 
-    output = input("\nWould you like to print outputs?\n[yes/no]\n ")
+    output = input("\nWould you like to print outputs?\n[yes/no]\n> ")
     print('\nPreparing your data...\n')
     time.sleep(2)
 
@@ -95,7 +115,7 @@ def main():
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
     g_save = input('Would you like to save data on Google Spreadsheets?\n'
-                   '[yes/no]?\n ')
+                   '[yes/no]?\n> ')
 
     try:
         gc = gs.service_account_from_dict(creds, scopes=SCOPE)
@@ -106,7 +126,7 @@ def main():
               f'data on google spreadsheets.\n')
 
     # Store data search your brand spreadsheet
-    if g_save == 'yes':
+    if g_save.lower() == "yes":
         try:
             update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
             update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
@@ -118,6 +138,7 @@ def main():
         tweets_location_link = "https://bit.ly/3iTDCH1"
         print(f'{tweets_location_link}\n')
 
+    sys.exit(0)
 
 def geo_location(city, country):
     """
@@ -139,13 +160,10 @@ def geo_location(city, country):
     except Exception:
         print("\nFatal Error: Unable to resolve country and city for"
               " geolocation.")
-        if input("Do you like to restart? [yes/no]: \n ") == "yes":
+        if input("Do you like to restart? [yes/no]: \n> ").lower() == "yes":
             main()
         else:
             sys.exit(1)
-
-    sys.exit(0)
-
 
 def search_tweet(loc, city, country, keyword, language, output):
     """
@@ -190,7 +208,7 @@ def search_tweet(loc, city, country, keyword, language, output):
                     'full_text': 'Tweet',
                     'user.location': 'Location'},
                     inplace=True)
-        if output == "yes":
+        if output.lower() == "yes":
             print(f' Tweets based on your search.\n\n {tweets_df[:15]}')
 
         return tweets_df, tweets_df[:15]
@@ -219,7 +237,7 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
             'Keyword', 'Location', 'Number of Users', 'Search Date']]
         time.sleep(3)
 
-        if output == "yes":
+        if output.lower() == "yes":
             print(f'\n{"Summary of Tweets by Location"}\n\n'
                   f' {my_location_rearranged[:15]}\n')
 

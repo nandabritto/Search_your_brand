@@ -46,7 +46,7 @@ Ennable user to choose some options as Country, City, Keyword and Preferred Lang
 
 If City or Country options could't be validated by geolocation function the user has option to restart and try again. 
 
-<img src="">
+<img src="images/readme_images/testing/geoloc_error.png">
 
 User can choose between four different languages to search on Twitter (English-en, Spanish-es, Portuguese-pt and German-de)
 English language is set by default if user doen't want to set his own choice or write any wrong option. 
@@ -61,13 +61,14 @@ If user set yes all the data collected from Twitter will be print on command lin
 <img src="images/readme_images/output_tweets.png">
 <img src="images/readme_images/output_tweets_location.png">
 
-Tweets table has some columns added from Twitter API as: tweet creation date, tweet text, username and location. 
+Tweets table has some columns added from Twitter API (marked with a red line on image below) as: tweet creation date, tweet text, username and location. 
+Search date, keyword and language were added to table (marked with a green line on image below)in order to add information about internal app search details. 
 
-<img src="">
+<img src="images/readme_images/tweets_table_explained.png">
 
-Search date, keyword and language were added to table in order to add information about internal app search details. 
 
-<img src="">
+
+
 
 
 
