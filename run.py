@@ -53,75 +53,83 @@ SCOPE = [
     ]
 
 
-def get_args():
+# def get_args():
 
-    """
-    Get arguments and assign inputs if arguments are empty and
-    run all the functions
-    """
-    # add description of task
-    parser = argparse.ArgumentParser(
-        description='Search for tweets by location and keyword')
-    # add country argument
-    parser.add_argument(
-        '-co', '--country', type=str, help='Your country', required=True)
-    # add city argument
-    parser.add_argument(
-        '-cy', '--city', type=str, help='Your city', required=True)
-    # add keyword argument
-    parser.add_argument(
-        '-key', '--keyword', type=str, help='Your keyword', required=True)
-    # add language argument
-    parser.add_argument(
-        '-ln', '--language', type=str, help='Your preferred language',
-        default='en')
-    # add number of tweets argument
-    parser.add_argument(
-        '-tw', '--tweets', type=int,
-        help='Number of tweets added to your table', default=15)
-    # save on google spreedsheets option
-    parser.add_argument(
-        '-gs', '--gsave', type=str, choices=['yes', 'no'],
-        help='Save your data on Google Spreadsheet', default='yes')
-    parser.add_argument(
-        '-v', '--verbose', action="store_true", help='Print outputs')
+#     """
+#     Get arguments and assign inputs if arguments are empty and
+#     run all the functions
+#     """
+#     # add description of task
+#     parser = argparse.ArgumentParser(
+#         description='Search for tweets by location and keyword')
+#     # add country argument
+#     # parser.add_argument(
+#     #     '-co', '--country', type=str, help='Your country', required=True)
+#     # # add city argument
+#     # parser.add_argument(
+#     #     '-cy', '--city', type=str, help='Your city', required=True)
+#     # # add keyword argument
+#     # parser.add_argument(
+#     #     '-key', '--keyword', type=str, help='Your keyword', required=True)
+#     # add language argument
+#     parser.add_argument(
+#         '-ln', '--language', type=str, help='Your preferred language',
+#         default='en')
+#     # add number of tweets argument
+#     parser.add_argument(
+#         '-tw', '--tweets', type=int,
+#         help='Number of tweets added to your table', default=15)
+#     # save on google spreedsheets option
+#     parser.add_argument(
+#         '-gs', '--gsave', type=str, choices=['yes', 'no'],
+#         help='Save your data on Google Spreadsheet', default='yes')
+#     parser.add_argument(
+#         '-v', '--verbose', action="store_true", help='Print outputs')
 
-    try:
-        args = parser.parse_args()
-    except SystemExit:
-        print("\n\nPlease see help below:")
-        parser.print_help()
-        sys.exit(0)
-    except Exception as e:
-        print('Sorry an unknown error occurred. Exception: %s', e)
-    return args
-
+#     try:
+#         args = parser.parse_args()
+#     # except SystemExit:
+#     #     print("\n\nPlease see help below:")
+#     #     parser.print_help()
+#     #     sys.exit(0)
+#     except Exception as e:
+#         print('Sorry an unknown error occurred. Exception: %s', e)
+#     return args
 
 def main():
     """
     Get Twitter API keys, call argparse from get_args, assign variable
     to geo_location function and call search_tweets and update_worksheet.
     """
-    parsed_args = get_args()
-    loc = geo_location(parsed_args)
-    print(f'\n Welcome to Search your Brand on Twitter!\n\n'
-          f'{" User defined location: "}{loc} \n')
+    print(f'\n Welcome to Search your Brand on Twitter!\n')
+
+    country = input("\n Write your country: \n ")
+    city = input("\n Write your city: \n ")
+    keyword = input("\n Write keyword: \n ")
+    language = input("\n Choose your language: \n ")
+    output = input("\n Would you like to print outputs? [yes/no]\n ")
+
+#   parsed_args = get_args()
+#   print(parsed_args)
+    loc = geo_location(city,country)
+    print(f'\n User defined location: "{loc} \n')
     time.sleep(2)
 
     print(f' This is your tweets search results based on your arguments:\n\n'
-          f' Keyword: {parsed_args.keyword}\n'
-          f' Country: {parsed_args.country}\n'
-          f' City: {parsed_args.city}\n'
-          f' Language: {parsed_args.language}')
+          f' Keyword: {keyword}\n'
+          f' Country: {country}\n'
+          f' City: {city}\n'
+          f' Language: {language}'
+          )
 
     time.sleep(2)
 
-    tweets_df, search_result = search_tweet(loc, parsed_args)
+    tweets_df, search_result = search_tweet(loc, city, country, keyword, language, output)
 
     print(f'\nYour Tweets table is saved on Google Spreadsheets file: '
           f'{GSPREADSHEET}. and worksheet: {SEARCH_RESULT_SHEET}')
 
-    count_loc = tweet_location_count(tweets_df, parsed_args)
+    count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
     print(f'\nYour Tweets location table is saved on Google Spreadsheets file:'
           f' {GSPREADSHEET} and worksheet: {COUNTLOC_TWEETS_SHEET}.')
@@ -132,36 +140,40 @@ def main():
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
               f'Please check your creds.json file if you want to save your '
               f'data on google spreadsheets.\n')
-        parsed_args.gsave = 'no'
+#        parsed_args.gsave = 'no'
 
-    if parsed_args.gsave == 'yes':
+#    if parsed_args.gsave == 'yes':
+    try:
         update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
         update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
+    except:
+        print("Unable to save into worksheet")
 
 
-def geo_location(args):
+def geo_location(city, country):
     """
     Get user location (by city and country) and  assign the args to variables
     with geolocator and geocode
     """
 
     try:
+        print(f"\n Finding geolocation for city: {city}, country: {country}")
         geolocator = Nominatim(user_agent="my_user_agent")
-        geoloc = {'city': args.city, 'country': args.country}
+        geoloc = {'city': city, 'country': country}
         loc = geolocator.geocode(geoloc)
 
         if loc is None:
             raise Exception
         else:
             return loc
-    except Exception as e_geoloc:
-        e_geoloc.message = '\n Fatal Error: Unable to resolve country and'
-        'city for geolocation. \n Please review your parameters \n'
-        print(e_geoloc.message)
+    except Exception as e:
+        # e_geoloc.message = '\n Fatal Error: Unable to resolve country and'
+        # 'city for geolocation. \n Please review your parameters \n'
+        print('\n Fatal Error: Unable to resolve country and city for geolocation.\n')
         sys.exit(0)
 
 
-def search_tweet(loc, args):
+def search_tweet(loc, city, country, keyword, language, output):
     """
     Gets user's latitude and longitude and search tweets on Twitter in max
     range of 100km, enable user to add search keyword, preferred language
@@ -169,7 +181,7 @@ def search_tweet(loc, args):
     coordenation and if geolocaton is enable.
     """
 
-    new_search = args.keyword + "-filter:retweets"
+    new_search = keyword + "-filter:retweets"
 
     max_range = 100
 
@@ -178,15 +190,15 @@ def search_tweet(loc, args):
                       api.search,
                       q=new_search,
                       count=1000,
-                      lang=args.language,
+                      lang="en",
                       geocode="%f,%f,%dkm" %
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
 
         json_data = [r._json for r in tweets.items()]
         df = pd.json_normalize(json_data)
-        df['Keyword'] = args.keyword
-        df['Language'] = args.language
+        df['Keyword'] = keyword
+        df['Language'] = language
         df['Search Date'] = pd.to_datetime("today")
         tweet_subset = (df[[
             'Search Date',
@@ -200,20 +212,21 @@ def search_tweet(loc, args):
         tweets_df.rename(columns={
                     'created_at': 'Created at',
                     'user.screen_name': 'Username',
-                    'full_text': 'Tweet', 'user.location': 'Location'},
+                    'full_text': 'Tweet', 
+                    'user.location': 'Location'},
                     inplace=True)
-        if args.verbose:
-            print(f'\n {tweets_df[:args.tweets]}')
-        return tweets_df, tweets_df[:args.tweets]
+        if output == "yes":
+            print(f'\n {tweets_df[:15]}')
+        return tweets_df, tweets_df[:15]
 
     except Exception as e_tweets:
         print("Sorry, an error has occured: \n", e_tweets)
         sys.exit(0)
     else:
-        return tweets_df, (tweets_df[:args.tweets])
+        return tweets_df, (tweets_df[:15])
 
 
-def tweet_location_count(tweets_df, args):
+def tweet_location_count(tweets_df, city, country, keyword, output):
     """
     Gets tweets and group by location, create a count column with number of
     users on that location and sort values. Add Keyword and Seach Date column.
@@ -223,13 +236,13 @@ def tweet_location_count(tweets_df, args):
         my_location = tweets_df.groupby("Location")
         my_location_grouped = my_location["Location"].count().sort_values(
             ascending=False).reset_index(name="Number of Users")
-        my_location_grouped['Keyword'] = args.keyword
+        my_location_grouped['Keyword'] = keyword
         my_location_grouped['Search Date'] = pd.to_datetime("today")
         my_location_rearranged = my_location_grouped[[
             'Search Date', 'Keyword', 'Location', 'Number of Users']]
         time.sleep(3)
 
-        if args.verbose:
+        if output == "yes":
             print(f'  \n\nSumary of Tweets by Location\n\n'
                   f' {my_location_rearranged}')
         return my_location_rearranged
