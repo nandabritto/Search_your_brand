@@ -8,7 +8,6 @@ import gspread_dataframe as gd
 import sys
 import time
 import json
-import webbrowser
 load_dotenv()
 
 
@@ -60,33 +59,33 @@ def main():
     Get Twitter API keys, get input data, assign variable
     to geo_location function and call search_tweets and update_worksheet.
     """
-    print("\n Welcome to Search your Brand on Twitter!\n")
+    print("\nWelcome to Search your Brand on Twitter!\n")
 
-    country = input(" Write your country: \n ")
-    city = input("\n Write your city: \n "
-                 "If your city has more than 1 word, please, use cotes. "
+    country = input("Write your country: \n  ")
+    city = input("\nWrite your city: \n"
+                 "If your city has more than 1 word, please, use cotes.\n"
                  "Example: 'Rio de Janeiro'\n ")
-    keyword = input("\n Write your search keyword: \n "
+    keyword = input("\nWrite your search keyword: \n"
                     "If you would like to add more than one keyword, "
                     "please, use cotes. \n ")
     language = input(
-        "\n Choose your language: \n [en/es/pt/de] \n "
+        "\nChoose your language: \n[en/es/pt/de] \n "
         ).lower()
     if language not in ["en", "es", "pt", "de"]:
         language = "en"
 
     loc = geo_location(city, country)
-    print(f'\n User defined location: "{loc} \n ')
+    print(f'\nUser defined location: "{loc} \n ')
     time.sleep(2)
 
-    print(f' This is your tweets search results based on your parameters:\n\n'
+    print(f'This is your tweets search results based on your parameters:\n\n'
           f' Keyword: {keyword.capitalize()}\n'
           f' Country: {country.capitalize()}\n'
           f' City: {city.capitalize()}\n'
           f' Language: {language}')
 
-    output = input("\n Would you like to print outputs? [yes/no]\n ")
-    print('\n Preparing your data...\n')
+    output = input("\nWould you like to print outputs?\n[yes/no]\n ")
+    print('\nPreparing your data...\n')
     time.sleep(2)
 
     # call search_tweet function to retrieve tweets
@@ -95,8 +94,8 @@ def main():
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    g_save = input(' Do you like to save data on Google Spreadsheets?'
-                   ' [yes/no]?\n ')
+    g_save = input('Would you like to save data on Google Spreadsheets?\n'
+                   '[yes/no]?\n ')
 
     try:
         gc = gs.service_account_from_dict(creds, scopes=SCOPE)
@@ -114,9 +113,11 @@ def main():
         except Exception:
             print(" Unable to save into worksheet")
 
-        print(f'\n Your Tweets location table is saved on Google Spreadsheets file: {GSPREADSHEET}')
-        tweets_location_link = "https://docs.google.com/spreadsheets/d/119RMhPRwjaPrSZqhRqdr8tUnV4vew6GNRTYIep-7Ixk/edit?usp=sharing"
-        print(f' {tweets_location_link}\n')
+        print(f'\nYour Tweets location table is saved on Google Spreadsheets'
+              f' file: {GSPREADSHEET}.')
+        tweets_location_link = "https://bit.ly/3iTDCH1"
+        print(f'{tweets_location_link}\n')
+
 
 def geo_location(city, country):
     """
@@ -125,7 +126,7 @@ def geo_location(city, country):
     """
 
     try:
-        print(f" Finding geolocation for city: {city.capitalize()},"
+        print(f"\nFinding geolocation for city: {city.capitalize()},"
               f" country: {country.capitalize()}")
         geolocator = Nominatim(user_agent="my_user_agent")
         geoloc = {'city': city, 'country': country}
@@ -136,9 +137,9 @@ def geo_location(city, country):
         else:
             return loc
     except Exception:
-        print("\n Fatal Error: Unable to resolve country and city for"
+        print("\nFatal Error: Unable to resolve country and city for"
               " geolocation.")
-        if input(" Do you like to restart? [yes/no]: \n ") == "yes":
+        if input("Do you like to restart? [yes/no]: \n ") == "yes":
             main()
         else:
             sys.exit(1)
@@ -195,7 +196,7 @@ def search_tweet(loc, city, country, keyword, language, output):
         return tweets_df, tweets_df[:15]
 
     except Exception as e_tweets:
-        print(f'{" Sorry, an error has occured: "}\n {e_tweets} \n '
+        print(f'{"Sorry, an error has occured: "}\n{e_tweets} \n '
               f'{"Check your Twitter API keys"}\n')
         sys.exit(0)
     else:
@@ -219,10 +220,10 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
         time.sleep(3)
 
         if output == "yes":
-            print(f'\n {"Summary of Tweets by Location"}\n\n'
-                  f' {my_location_rearranged}\n')
+            print(f'\n{"Summary of Tweets by Location"}\n\n'
+                  f' {my_location_rearranged[:15]}\n')
 
-        return my_location_rearranged
+        return my_location_rearranged[:15]
 
     except Exception:
         print("An error has ocurred: {e_location_count}"
