@@ -5,4 +5,4 @@ env.py
 __pycache__/
 *.py[cod]
 .env
-creds.json
+CREDS.json

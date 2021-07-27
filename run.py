@@ -95,10 +95,10 @@ def main():
         '\n Do you like to save data on Google Spreadsheets? [yes/no]?')
 
     try:
-        gc = gs.service_account(filename="creds.json")
+        gc = gs.service_account(filename="CREDS.json")
     except Exception as e_Oauth:
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
-              f'Please check your creds.json file if you want to save your '
+              f'Please check your CREDS.json file if you want to save your '
               f'data on google spreadsheets.\n')
 
     # Store data search your brand spreadsheet
