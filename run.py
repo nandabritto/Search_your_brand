@@ -40,23 +40,19 @@ auth = tw.OAuthHandler(API_KEY, API_SECRET_KEY)
 auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 api = tw.API(auth, wait_on_rate_limit=True)
 
-# """
-# GoogleSpreadsheets API keys
-# """
-# SCOPE = [
-#     "https://www.googleapis.com/auth/spreadsheets",
-#     "https://www.googleapis.com/auth/drive.file",
-#     "https://www.googleapis.com/auth/drive"
-#     ]
+"""
+GoogleSpreadsheets API keys
+"""
+SCOPE = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive"
+    ]
 
-# #creds = json.load(open('creds.json'))
-# creds = get_env_variable('CREDS')
-# CREDS = Credentials.from_service_account_info(creds)
-# SCOPED_CREDS = CREDS.with_scopes(SCOPE)
-# GSPREADSHEET = os.environ.get('GSPREADSHEET')
-# # GSPREAD_CLIENT = gs.authorize(SCOPED_CREDS)
-# SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
-# COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
+creds = json.loads(os.environ.get('CREDS'))
+GSPREADSHEET = os.environ.get('GSPREADSHEET')
+SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
+COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
 
 
 
@@ -99,25 +95,26 @@ def main():
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    # g_save = input(
-    #     '\n Do you like to save data on Google Spreadsheets? [yes/no]?')
+    g_save = input(
+        '\n Do you like to save data on Google Spreadsheets? [yes/no]?')
 
-    # try:
-    #     gc = gs.service_account(filename="creds.json")
-    #     GSPREAD_CLIENT = gs.authorize(SCOPED_CREDS)
+    try:
+        #gc = gs.service_account(filename="creds.json")
+        gc = gs.service_account_from_dict(creds,scopes=SCOPE)
+        #GSPREAD_CLIENT = gs.authorize(SCOPED_CREDS)
 
-    # except Exception as e_Oauth:
-    #     print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
-    #           f'Please check your CREDS.json file if you want to save your '
-    #           f'data on google spreadsheets.\n')
+    except Exception as e_Oauth:
+        print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
+              f'Please check your CREDS.json file if you want to save your '
+              f'data on google spreadsheets.\n')
 
-    # # Store data search your brand spreadsheet
-    # if g_save == 'yes':
-    #     try:
-    #         update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
-    #         update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
-    #     except Exception:
-    #         print("Unable to save into worksheet")
+    # Store data search your brand spreadsheet
+    if g_save == 'yes':
+        try:
+            update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
+            update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
+        except Exception:
+            print("Unable to save into worksheet")
 
 
 def geo_location(city, country):
@@ -229,15 +226,15 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
               f'\nWe cannot deliver tweets by location table.')
 
 
-# def update_worksheet(gc, p_sheet, p_search_result):
-#     """
-#     Update spreadsheet.
-#     """
+def update_worksheet(gc, p_sheet, p_search_result):
+    """
+    Update spreadsheet.
+    """
 
-#     ws = gc.open(GSPREADSHEET).worksheet(p_sheet)
-#     existing = gd.get_as_dataframe(ws)
-#     updated = existing.append(p_search_result)
-#     gd.set_with_dataframe(ws, updated)
+    ws = gc.open(GSPREADSHEET).worksheet(p_sheet)
+    existing = gd.get_as_dataframe(ws)
+    updated = existing.append(p_search_result)
+    gd.set_with_dataframe(ws, updated)
 
 
 if __name__ == "__main__":
