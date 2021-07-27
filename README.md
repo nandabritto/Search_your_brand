@@ -1,45 +1,77 @@
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+<h1 align=center> Search your brand on Twitter</h1>
 
-Welcome nandabritto,
+<p align=center>If you would like to check how your brand is being commented on Twitter, this is your app! 
 
-This is the Code Institute student template for Gitpod. We have preinstalled all of the tools you need to get started. You can safely delete this README.md file, or change it for your own project. Please do read it at least once, though! It contains some important information about Gitpod and the extensions we use.
+Search youur brand will search tweets containeing your preferred keyword in a 100km max range from you defined location and return to you a table with user's information, tweet content and where is the location with more results of your keyword. <br>
+ </p>
 
-## Gitpod Reminders
+<img src="images/readme_images/search_your_brand_mock_up.png">
 
-To run a frontend (HTML, CSS, Javascript only) application in Gitpod, in the terminal, type:
 
-`python3 -m http.server`
+ ## Project Purpose
 
-A blue button should appear to click: *Make Public*,
+Create an app that can search tweets using Twitter API and outputs tweets with chosen keyword in a max range of 100km in tables on Google Spreadsheets. Also create a table data with all tweets location grouped and counted.  
 
-Another blue button should appear to click: *Open Browser*.
+## User Experience
 
-To run a backend Python file, type `python3 app.py`, if your Python file is named `app.py` of course.
+### User Stories
 
-A blue button should appear to click: *Make Public*,
++ As a user, I would like to be able to …
 
-Another blue button should appear to click: *Open Browser*.
+1.  easily add my information as City, Country, language and keyword;
+2. easily check if my information are correct;
+3.  decide if I want to get outputs on my command line or just save data on Google spreadsheets;
+4. check my created data on Google Spreadsheet.
 
-In Gitpod you have superuser security privileges by default. Therefore you do not need to use the `sudo` (superuser do) command in the bash terminal in any of the lessons.
+### App Owner Stories
 
-## Updates Since The Instructional Video
++ As App Owner Stories, I would like to be able to provide …
 
-We continually tweak and adjust this template to help give you the best experience. Here is the version history:
+1.  a simple, straightforward intuitive user experience;
+2. clear output data on command line or  cloud storage;
+3. user's feedback in case of wrong input;
 
-**October 21 2020:** Versions of the HTMLHint, Prettier, Bootstrap4 CDN and Auto Close extensions updated. The Python extension needs to stay the same version for now.
+## Features
 
-**October 08 2020:** Additional large Gitpod files (`core.mongo*` and `core.python*`) are now hidden in the Explorer, and have been added to the `.gitignore` by default.
+#### Welcome message 
 
-**September 22 2020:** Gitpod occasionally creates large `core.Microsoft` files. These are now hidden in the Explorer. A `.gitignore` file has been created to make sure these files will not be committed, along with other common files.
+ Welcome user to app. 
 
-**April 16 2020:** The template now automatically installs MySQL instead of relying on the Gitpod MySQL image. The message about a Python linter not being installed has been dealt with, and the set-up files are now hidden in the Gitpod file explorer.
+<img src="images/readme_images/greetings.png">
 
-**April 13 2020:** Added the _Prettier_ code beautifier extension instead of the code formatter built-in to Gitpod.
+#### User options
+Ennable user to choose some options as Country, City, Keyword and Preferred Language. 
 
-**February 2020:** The initialisation files now _do not_ auto-delete. They will remain in your project. You can safely ignore them. They just make sure that your workspace is configured correctly each time you open it. It will also prevent the Gitpod configuration popup from appearing.
+<img src="images/readme_images/options.png">
 
-**December 2019:** Added Eventyret's Bootstrap 4 extension. Type `!bscdn` in a HTML file to add the Bootstrap boilerplate. Check out the <a href="https://github.com/Eventyret/vscode-bcdn" target="_blank">README.md file at the official repo</a> for more options.
+If City or Country options could't be validated by geolocation function the user has option to restart and try again. 
 
---------
+<img src="">
 
-Happy coding!
+User can choose between four different languages to search on Twitter (English-en, Spanish-es, Portuguese-pt and German-de)
+English language is set by default if user doen't want to set his own choice or write any wrong option. 
+
+#### Returning user defined options.
+
+<img src="images/readme_images/returning-inputs.png">
+
+Allows user to review options setted to the app in order to search tweets and choose to get data output on command line or not.  
+If user set yes all the data collected from Twitter will be print on command line. 
+
+<img src="images/readme_images/output_tweets.png">
+<img src="images/readme_images/output_tweets_location.png">
+
+Tweets table has some columns added from Twitter API as: tweet creation date, tweet text, username and location. 
+
+<img src="">
+
+Search date, keyword and language were added to table in order to add information about internal app search details. 
+
+<img src="">
+
+
+
+
+
+#### 
+
