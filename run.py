@@ -7,6 +7,8 @@ import gspread as gs
 import gspread_dataframe as gd
 import sys
 import time
+from google.oauth2.service_account import Credentials
+import json
 load_dotenv()
 
 
@@ -41,15 +43,20 @@ api = tw.API(auth, wait_on_rate_limit=True)
 """
 GoogleSpreadsheets API keys
 """
-GSPREADSHEET = os.environ.get('GSPREADSHEET')
-SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
-COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
-
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
     "https://www.googleapis.com/auth/drive.file",
     "https://www.googleapis.com/auth/drive"
     ]
+
+creds = json.load(open('creds.json'))
+CREDS = Credentials.from_service_account_info(creds)
+SCOPED_CREDS = CREDS.with_scopes(SCOPE)
+GSPREADSHEET = os.environ.get('GSPREADSHEET')
+GSPREAD_CLIENT = gs.authorize(SCOPED_CREDS)
+SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
+COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
+
 
 
 def main():
@@ -95,7 +102,7 @@ def main():
         '\n Do you like to save data on Google Spreadsheets? [yes/no]?')
 
     try:
-        gc = gs.service_account(filename="CREDS.json")
+        gc = gs.service_account(filename="creds.json")
     except Exception as e_Oauth:
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
               f'Please check your CREDS.json file if you want to save your '
