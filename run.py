@@ -103,10 +103,10 @@ def main():
     """
     print(f'\n Welcome to Search your Brand on Twitter!\n')
 
-    country = input("\n Write your country: \n ")
-    city = input("\n Write your city: \n ")
+    country = input("\n Write your country: \n ").capitalize()
+    city = input("\n Write your city: \n ").capitalize()
     keyword = input("\n Write keyword: \n ")
-    language = input("\n Choose your language: \n ")
+    language = input("\n Choose your language: \n Please, use abreviation. Example: en \n ").lower()
     output = input("\n Would you like to print outputs? [yes/no]\n ")
 
 #   parsed_args = get_args()
@@ -119,8 +119,7 @@ def main():
           f' Keyword: {keyword}\n'
           f' Country: {country}\n'
           f' City: {city}\n'
-          f' Language: {language}'
-          )
+          f' Language: {language}')
 
     time.sleep(2)
 
@@ -170,6 +169,12 @@ def geo_location(city, country):
         # e_geoloc.message = '\n Fatal Error: Unable to resolve country and'
         # 'city for geolocation. \n Please review your parameters \n'
         print('\n Fatal Error: Unable to resolve country and city for geolocation.\n')
+        if input('Do you like to restart? [yes/no]: ') == "yes":
+            main()
+        else:
+            sys.exit(1)
+        
+        
         sys.exit(0)
 
 
@@ -190,7 +195,7 @@ def search_tweet(loc, city, country, keyword, language, output):
                       api.search,
                       q=new_search,
                       count=1000,
-                      lang="en",
+                      lang=language,
                       geocode="%f,%f,%dkm" %
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
