@@ -7,7 +7,6 @@ import gspread as gs
 import gspread_dataframe as gd
 import sys
 import time
-from google.oauth2.service_account import Credentials
 import json
 load_dotenv()
 
@@ -55,38 +54,38 @@ SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
 COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
 
 
-
 def main():
     """
     Get Twitter API keys, get input data, assign variable
     to geo_location function and call search_tweets and update_worksheet.
     """
-    print(f'\n{" Welcome to Search your Brand on Twitter!"}\n')
+    print("n Welcome to Search your Brand on Twitter!\n")
 
-    country = input("\n Write your country: \n ").capitalize()
-    city = input("\n Write your city: \n ").capitalize()
-    keyword = input("\n Write keyword: \n ")
+    country = input(" Write your country: \n ")
+    city = input("\n Write your city: \n "
+                 "If your city has more than 1 word, please, use cotes. "
+                 "Example: 'Rio de Janeiro'\n ")
+    keyword = input("\n Write your search keyword: \n "
+                    "If you would like to add more than one keyword, "
+                    "please, use cotes. \n ")
     language = input(
-        "\n Choose your language: \n Please, use abreviation. Example: en \n "
+        "\n Choose your language: \n [en/es/pt/de] \n "
         ).lower()
-
-    if len(language) > 2:
-        print('You wrote too many characters.\n'
-              'Please, add your language abreviation')
-        language = input('\n').lower()
+    if language not in ["en", "es", "pt", "de"]:
+        language = "en"
 
     loc = geo_location(city, country)
-    print(f'\n User defined location: "{loc} \n')
+    print(f'\n User defined location: "{loc} \n ')
     time.sleep(2)
 
     print(f' This is your tweets search results based on your arguments:\n\n'
-          f' Keyword: {keyword}\n'
-          f' Country: {country}\n'
-          f' City: {city}\n'
+          f' Keyword: {keyword.capitalize()}\n'
+          f' Country: {country.capitalize()}\n'
+          f' City: {city.capitalize()}\n'
           f' Language: {language}')
 
     output = input("\n Would you like to print outputs? [yes/no]\n ")
-    print('\n Preparing your data...')
+    print('\n Preparing your data...\n')
     time.sleep(2)
 
     # call search_tweet function to retrieve tweets
@@ -95,12 +94,11 @@ def main():
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    g_save = input('\n Do you like to save data on Google Spreadsheets? [yes/no]?\n')
-    print(g_save)
+    g_save = input('\n Do you like to save data on Google Spreadsheets?'
+                   ' [yes/no]?\n')
+
     try:
-        #gc = gs.service_account(filename="creds.json")
-        gc = gs.service_account_from_dict(creds,scopes=SCOPE)
-        #GSPREAD_CLIENT = gs.authorize(SCOPED_CREDS)
+        gc = gs.service_account_from_dict(creds, scopes=SCOPE)
 
     except Exception as e_Oauth:
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
@@ -123,7 +121,8 @@ def geo_location(city, country):
     """
 
     try:
-        print(f"\n Finding geolocation for city: {city}, country: {country}")
+        print(f"\n Finding geolocation for city: {city.capitalize()},"
+              f" country: {country.capitalize()}")
         geolocator = Nominatim(user_agent="my_user_agent")
         geoloc = {'city': city, 'country': country}
         loc = geolocator.geocode(geoloc)
@@ -133,9 +132,9 @@ def geo_location(city, country):
         else:
             return loc
     except Exception:
-        print('\n Fatal Error: Unable to resolve country and city for'
-              ' geolocation.')
-        if input('Do you like to restart? [yes/no]: ') == "yes":
+        print("\n Fatal Error: Unable to resolve country and city for"
+              " geolocation.")
+        if input(" Do you like to restart? [yes/no]: \n ") == "yes":
             main()
         else:
             sys.exit(1)
@@ -172,13 +171,13 @@ def search_tweet(loc, city, country, keyword, language, output):
         df['Language'] = language
         df['Search Date'] = pd.to_datetime("today")
         tweet_subset = (df[[
-            'Search Date',
             'Keyword',
             'Language',
-            'created_at',
             'user.screen_name',
             'full_text',
-            'user.location']])
+            'user.location',
+            'created_at',
+            'Search Date']])
         tweets_df = tweet_subset.copy()
         tweets_df.rename(columns={
                     'created_at': 'Created at',
@@ -187,7 +186,7 @@ def search_tweet(loc, city, country, keyword, language, output):
                     'user.location': 'Location'},
                     inplace=True)
         if output == "yes":
-            print(f'\n\n Tweets based on your search.\n'f'\n {tweets_df[:15]}')
+            print(f'Tweets based on your search.\n\n {tweets_df[:15]}')
 
         return tweets_df, tweets_df[:15]
 
@@ -211,18 +210,18 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
         my_location_grouped['Keyword'] = keyword
         my_location_grouped['Search Date'] = pd.to_datetime("today")
         my_location_rearranged = my_location_grouped[[
-            'Search Date', 'Keyword', 'Location', 'Number of Users']]
+            'Keyword', 'Location', 'Number of Users', 'Search Date']]
         time.sleep(3)
 
         if output == "yes":
-            print(f'  \n\nSummary of Tweets by Location\n\n'
-                  f' {my_location_rearranged}')
+            print("\n Summary of Tweets by Location\n\n"
+                  " {my_location_rearranged}\n")
 
         return my_location_rearranged
 
-    except Exception as e_location_count:
-        print(f'An error has ocurred: {e_location_count}'
-              f'\nWe cannot deliver tweets by location table.')
+    except Exception:
+        print("An error has ocurred: {e_location_count}"
+              "\nWe cannot deliver tweets by location table.\n")
 
 
 def update_worksheet(gc, p_sheet, p_search_result):
