@@ -107,10 +107,15 @@ def main():
     city = input("\n Write your city: \n ").capitalize()
     keyword = input("\n Write keyword: \n ")
     language = input("\n Choose your language: \n Please, use abreviation. Example: en \n ").lower()
-    output = input("\n Would you like to print outputs? [yes/no]\n ")
+  
+    if len(language) > 2:
+        print('You wrote too many characters.\n'
+              'Please, add your language abreviation')
+        language = input('\n').lower()
 
 #   parsed_args = get_args()
 #   print(parsed_args)
+
     loc = geo_location(city,country)
     print(f'\n User defined location: "{loc} \n')
     time.sleep(2)
@@ -120,18 +125,18 @@ def main():
           f' Country: {country}\n'
           f' City: {city}\n'
           f' Language: {language}')
-
+    
+    output = input("\n Would you like to print outputs? [yes/no]\n ")
+    print('\n Preparing your data...')
     time.sleep(2)
 
+
     tweets_df, search_result = search_tweet(loc, city, country, keyword, language, output)
-
-    print(f'\nYour Tweets table is saved on Google Spreadsheets file: '
-          f'{GSPREADSHEET}. and worksheet: {SEARCH_RESULT_SHEET}')
-
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    print(f'\nYour Tweets location table is saved on Google Spreadsheets file:'
-          f' {GSPREADSHEET} and worksheet: {COUNTLOC_TWEETS_SHEET}.')
+    g_save = input('\n Do you like to save data on Google Spreadsheets? [yes/no]?')
+
+   
 
     try:
         gc = gs.service_account(filename="creds.json")
@@ -141,12 +146,13 @@ def main():
               f'data on google spreadsheets.\n')
 #        parsed_args.gsave = 'no'
 
-#    if parsed_args.gsave == 'yes':
-    try:
-        update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
-        update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
-    except:
-        print("Unable to save into worksheet")
+    if g_save == 'yes':
+        try:
+            update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
+            update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
+            
+        except:
+            print("Unable to save into worksheet")
 
 
 def geo_location(city, country):
@@ -221,7 +227,8 @@ def search_tweet(loc, city, country, keyword, language, output):
                     'user.location': 'Location'},
                     inplace=True)
         if output == "yes":
-            print(f'\n {tweets_df[:15]}')
+            print(f'\n\n Tweets based on your search.\n'f'\n {tweets_df[:15]}')
+           
         return tweets_df, tweets_df[:15]
 
     except Exception as e_tweets:
@@ -248,8 +255,9 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
         time.sleep(3)
 
         if output == "yes":
-            print(f'  \n\nSumary of Tweets by Location\n\n'
+            print(f'  \n\nSummary of Tweets by Location\n\n'
                   f' {my_location_rearranged}')
+            
         return my_location_rearranged
 
     except Exception as e_location_count:
