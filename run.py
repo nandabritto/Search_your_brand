@@ -62,31 +62,31 @@ def main():
     print("\nWelcome to Search your Brand on Twitter!\n")
 
     try:
-       country = input("Write your country: \n> ")
-       if not country:
-           print("\nCountry parameter cannot be empty\n")
-           raise Exception
+        country = input("Write your country: \n> ")
+        if not country:
+            print("\nCountry parameter cannot be empty\n")
+            raise Exception
 
-       city = input("\nWrite your city: \n"
-                 "If your city has more than 1 word, please, use quotes.\n"
-                 "Example: 'Rio de Janeiro'\n> ")
-       if not city:
-           print("\nCity parameter cannot be empty\n")
-           raise Exception
+        city = input("\nWrite your city: \n"
+                     "If your city has more than 1 word, please, use quotes.\n"
+                     "Example: 'Rio de Janeiro'\n> ")
+        if not city:
+            print("\nCity parameter cannot be empty\n")
+            raise Exception
 
-       keyword = input("\nWrite your search keyword: \n"
-                    "If you would like to add more than one keyword, "
-                    "please, use quotes. \n> ")
-       if not keyword:
-           print("\nKeyword parameter cannot be empty\n")
-           raise Exception
+        keyword = input("\nWrite your search keyword: \n"
+                        "If you would like to add more than one keyword, "
+                        "please, use quotes. \n> ")
+        if not keyword:
+            print("\nKeyword parameter cannot be empty\n")
+            raise Exception
 
-       language = input(
-        "\nChoose your language: \n[en/es/pt/de] \n> "
-        ).lower()
-       if language not in ["en", "es", "pt", "de"]:
-          print("\nLanguage not in one of supported languages. Default to en.\n")
-          language = "en"
+        language = input("\nChoose your language: \n[en/es/pt/de] \n> "
+                         ).lower()
+        if language not in ["en", "es", "pt", "de"]:
+            print(
+                "\nSelected language not supported. Default to en.\n")
+            language = "en"
     except Exception:
         print("\nFatal Error: Required parameter missing\n")
         if input("Do you like to restart? [yes/no]: \n> ").lower() == "yes":
@@ -140,6 +140,7 @@ def main():
 
     sys.exit(0)
 
+
 def geo_location(city, country):
     """
     Get user location (by city and country) and  assign to geolocator
@@ -164,6 +165,7 @@ def geo_location(city, country):
             main()
         else:
             sys.exit(1)
+
 
 def search_tweet(loc, city, country, keyword, language, output):
     """
