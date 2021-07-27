@@ -95,7 +95,7 @@ def main():
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
-    g_save = input('\n Do you like to save data on Google Spreadsheets? [yes/no]?')
+    g_save = input('\n Do you like to save data on Google Spreadsheets? [yes/no]?\n')
     print(g_save)
     try:
         #gc = gs.service_account(filename="creds.json")
