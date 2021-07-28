@@ -2,7 +2,7 @@
 
 <p align=center>If you would like to check how your brand is being commented on Twitter, this is your app! 
 
-Search your brand" will search tweets containing your preferred keyword in a 100km max range from your defined location and return to you a table with user's information, tweet content and the locations with more results of your keyword. In this current version, we even supporting Export of retrieved outputs into Google Spreadsheets, allowing further data analysis. <br>
+"Search your brand" will search tweets containing your preferred keyword in a 100km max range from your defined location and return to you a table with user's information, tweet content and the locations with more results of your keyword. In this current version, we even supporting Export of retrieved outputs into Google Spreadsheets, allowing further data analysis. <br>
  </p>
 
 <img src="images/readme_images/search_your_brand_mock_up.png">
@@ -11,7 +11,7 @@ Live app link [here](https://search-your-brand.herokuapp.com/)
 
  ## Project Purpose
 
-Create an app that can search tweets using Twitter API and outputs tweets with a chosen keyword in a max range of 100km. Also, create a table data with all tweets location grouped and counted.   Data created can be viewed on Terminal or stored on Google Spreadsheets. 
+Create an app that can search tweets using Twitter API and outputs tweets with a chosen keyword in a max range of 100km. Also, create a table data with all tweets location grouped and counted. Data created can be viewed on terminal or stored on Google Spreadsheets. 
 
 ## User Experience
 
@@ -29,8 +29,9 @@ Create an app that can search tweets using Twitter API and outputs tweets with a
 + As App Owner Stories, I would like to be able to provide …
 
 1. a simple, straightforward intuitive user experience;
-2. clear output data on the terminal or  cloud storage;
+2. clear output data on the terminal or cloud storage;
 3. user's feedback in case of wrong input.
+4. give the user the possibility to restart app in case of fatal errors.
 
 ## Functional Scope 
 
@@ -42,11 +43,12 @@ The following flowchart shows the flow of "Search your brand" graphically.
 
 ### Welcome message 
 
- Welcome user to the app. 
+Welcome user to the app. 
 
 <img src="images/readme_images/greetings.png">
 
 ### User options
+
 Enable user to choose some options as Country, City, Keyword and Preferred Language. 
 
 <img src="images/readme_images/options.png">
@@ -69,7 +71,7 @@ If the user set yes all the data collected from Twitter will be print on the ter
 <img src="images/readme_images/output_tweetsloc.png">
 
 Tweets table has some columns added from Twitter API (marked with a red line on the image below) as tweet creation date, tweet text, username and location. 
-Search date, keyword and language were added to the table (marked with a green line on the image below)in order to add information about internal app search details. 
+Search date, keyword and language were added to the table (marked with a green line on the image below) in order to add information about internal app search details. 
 
 <img src="images/readme_images/tweets_table_explained.png">
 
@@ -103,7 +105,7 @@ Python 3.0
 
 ## Frameworks, Libraries & Programs Used
 
-Grammarly: Used to correct any mistakes on readme and app text.
+Grammarly: Used to correct any spell mistakes on readme and app text.
 Git: Git was used for version control by utilizing the Gitpod terminal to commit to Git and Push to GitHub.
 GitHub: GitHub is used to store the project's code after being pushed from Git.
 Google Spreadsheets API: Used to storage Search table data. 
@@ -114,13 +116,13 @@ Twitter API: Used to interact and get Tweets Data related to user keyword.
 
 ## Testing and Code validation 
 
-All testing and code validation details are described in a separate file called TESTING.mg and can be found [here](TESTING.md).
+All testing and code validation details are described in a separate file called TESTING.md and can be found [here](TESTING.md).
 
 ## Project Bugs and Solutions:
 
 | Bugs              | Solutions |
 | ---               | --------- |
-| When a user adds a country or city that is not recognized by geopy library, no country or city parameters were passed to tweepy, failing API call| Add an error handling to test if the location is None and raise an exception, print the error and allows user restart the app to add new parameters. 
+| When a user adds a country or city that is not recognized by geopy library, no country or city parameters were passed to tweepy, failing API call.| Add an error handling to test if the location is None and raise an exception, print the error and allows user restart the app to add new parameters. 
 | When tested on Heroku prints and inputs were hidden because of a lack of new line after code. | Add a new line after every input and print text to allows Heroku to show it and allows the app to flow correctly. 
 | During tests when the user added a language using the entire word, an error was raised. Tweepy just recognizes language abbreviations. The same happened when a wrong abbreviation was input from the user. | To solve this bug just four languages can be used and an English default language was added in case language is None. For future releases, new languages will be added. 
 | When tested, Heroku required all credentials to be Environment Variables. As best practice defined by Google, all variables were in a creds.json file. | Add google credentials in .env file as Environment Variables to allow Heroku to read it and load Google Spreadsheets API. 
@@ -134,7 +136,7 @@ This app is deployed using Heroku.
  
  1. Ensure all dependencies are listed on requirements.txt. 
  
- Write on python terminal ` pip3 freeze > requirements.txt"` and a list with all requirements will be created to be read by Heroku. 
+ Write on python terminal ` pip3 freeze > requirements.txt` and a list with all requirements will be created to be read by Heroku. 
  
  2. Setting up your Heroku
 
