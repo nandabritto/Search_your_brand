@@ -107,7 +107,7 @@ def main():
 
     output = input("\nWould you like to print outputs?\n[yes/no] \n ")
     print('\nPreparing your data...\n')
-    
+
     # Call search_tweet function to retrieve tweets
     tweets_df, search_result = search_tweet(
         loc, city, country, keyword, language, output)
@@ -132,13 +132,13 @@ def main():
         try:
             update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
             update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
-            print(f'\nYour Tweets location table is saved on Google Spreadsheets'
-              f' file: {GSPREADSHEET}.')
+            print(f'\n{"Your Tweets location table is saved on Google "}'
+                  f'{"Spreadsheets file: "}{GSPREADSHEET}.')
             tweets_location_link = "https://bit.ly/3iTDCH1"
             print(f'{tweets_location_link}\n')
         except Exception:
             print("Unable to save into worksheet.")
-       
+
     sys.exit(0)
 
 
@@ -194,11 +194,11 @@ def search_tweet(loc, city, country, keyword, language, output):
         json_data = [r._json for r in tweets.items()]
         # Dataframe created from twitter json
         df = pd.json_normalize(json_data)
-        # Add columns to tweets dataframe with user data 
+        # Add columns to tweets dataframe with user data
         df['Keyword'] = keyword
         df['Language'] = language
         df['Search Date'] = pd.to_datetime("today")
-        # Select few columns from tweets dataframe 
+        # Select few columns from tweets dataframe
         tweet_subset = (df[[
             'Keyword',
             'Language',
@@ -244,7 +244,7 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
         my_location_grouped['Search Date'] = pd.to_datetime("today")
         my_location_rearranged = my_location_grouped[[
             'Keyword', 'Location', 'Number of Users', 'Search Date']]
-        
+
         if output.lower() == "yes":
             print(f'\n{"Summary of Tweets by Location"}\n\n'
                   f' {my_location_rearranged[:15]}\n')
