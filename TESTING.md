@@ -25,7 +25,7 @@ The main goal of the app is to search tweets based on a user choice keyword. If 
 
 #### 3.  No language choice:
 
-Users can choose four different languages to procced search on Twitter. If any language had selected, an English default language is applied and proceed the searching. 
+Users can choose four different languages to proceed search on Twitter. If any language had selected, an English default language is applied and proceed the searching. 
 
 <img src="images/readme_images/testing/e_language.png">
 
@@ -53,7 +53,7 @@ In case of an error on tweets location, the app can run but no tweets location c
 
 #### Wrong or missing keys
 
-Apart from the Twitter API error, any error raised from Google Spreadsheets API doesn't stop the app to run. In this way, the error only will be raised if the user chooses to save data on google spreadsheets. In this scenario, a message will be delivered to inform it.  All other features can run without problems and data can be viewed on the terminal.  
+Apart from the Twitter API error, any error raised from Google Spreadsheets API doesn't prevent the app to run. In this way, the error only will be raised if the user chooses to save data on google spreadsheets. In this scenario, a message will be delivered to inform it.  All other features can run without problems and data can be viewed on the terminal.  
 
 <img src="images/readme_images/testing/e_gcreds.png">
 
@@ -67,12 +67,12 @@ Passing code on [Pep8 Validator](http://pep8online.com/) no errors or warnings h
 
 * Manual Testing
 
-  * Desktop
+ * Desktop
 
 Mozilla Firefox, Google Chrome, Microsoft Edge: everything is working good. Page loads and all features are working.
 
 
-  * Mobile
+ * Mobile
 
 Tested with Xiaomi Mi6 and Xiaomi Mi8 and webpage works well.
 
