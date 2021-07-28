@@ -36,7 +36,7 @@ Create an app that can search tweets using Twitter API and outputs tweets with a
 
 The following flowchart shows the flow of "Search your brand" graphically.
 
-<img width= "800" src="images/readme_images/search your brand_flowchart.png">
+<img width= "800" src="images/readme_images/search_your_brand_flowchart.png">
 
 ## Features
 
@@ -118,10 +118,10 @@ All testing and code validation details are described in a separate file called 
 
 | Bugs              | Solutions |
 | ---               | --------- |
-| When user add a country or city that is not recognized by geopy library, no country or city parameters were passed to tweepy, failing API call| Add an error handling to test if locaton is None and raise exception, print the error and allows user restart app to add new parameters. 
-| When tested on Heroku prints and inputs were hidden because an lack of new line after code. | Add new line after every input an print text to allows Heroku to show it  and allows app flows correctly. 
-| During tests when user added a language using the entire word, an error was raised. Tweepy just recognize language abreviations. The same happened when an wrong abreviation were input from user. | To solve this bug just four languages can be used and an English default language were added in case language is None. For future releases new languages will be added. 
-| When tested, Heroku required all credentials to be Environment Variables. As best practice defined by Google, all variables were in a creds.json file. | Add google credentials in .env file as Environment Variables to allow heroku to read it and load Google Spreadsheets API. 
+| When a user adds a country or city that is not recognized by geopy library, no country or city parameters were passed to tweepy, failing API call| Add an error handling to test if the location is None and raise an exception, print the error and allows user restart the app to add new parameters. 
+| When tested on Heroku prints and inputs were hidden because of a lack of new line after code. | Add a new line after every input and print text to allows Heroku to show it and allows the app to flow correctly. 
+| During tests when the user added a language using the entire word, an error was raised. Tweepy just recognizes language abbreviations. The same happened when a wrong abbreviation was input from the user. | To solve this bug just four languages can be used and an English default language was added in case language is None. For future releases, new languages will be added. 
+| When tested, Heroku required all credentials to be Environment Variables. As best practice defined by Google, all variables were in a creds.json file. | Add google credentials in .env file as Environment Variables to allow Heroku to read it and load Google Spreadsheets API. 
 
 ## Deployment 
 
@@ -268,7 +268,7 @@ API will allow our Python project to access and update data in our spreadsheet.
 
 ## Activating Twitter API
 
-API will allow our Python project to access data on Twitter website.
+API will allow our Python project to access data on the Twitter website.
 
 <details>
 <summary>API activating steps</summary>
@@ -285,7 +285,7 @@ API will allow our Python project to access data on Twitter website.
 
 <img src="images/readme_images/deployment/twitter_api/twitterapi_new.png">
 
-5. Choose you app name and create. After this, you will have access to all keys. Copy and paste in a .env file on gitpod. 
+5. Choose your app name and create. After this, you will have access to all keys. Copy and paste in a .env file on gitpod. 
 
 </details>
 
