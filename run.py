@@ -48,7 +48,7 @@ SCOPE = [
     "https://www.googleapis.com/auth/drive"
     ]
 
-creds = json.loads(os.environ.get('CREDS'))
+
 GSPREADSHEET = os.environ.get('GSPREADSHEET')
 SEARCH_RESULT_SHEET = os.environ.get('SEARCH_RESULT_SHEET')
 COUNTLOC_TWEETS_SHEET = os.environ.get('COUNTLOC_TWEETS_SHEET')
@@ -62,34 +62,35 @@ def main():
     print("\nWelcome to Search your Brand on Twitter!\n")
 
     try:
-        country = input("Write your country: \n> ")
+        country = input("Write your country: \n ")
         if not country:
             print("\nCountry parameter cannot be empty\n")
             raise Exception
 
         city = input("\nWrite your city: \n"
                      "If your city has more than 1 word, please, use quotes.\n"
-                     "Example: 'Rio de Janeiro'\n> ")
+                     "Example: 'Rio de Janeiro' \n ")
         if not city:
             print("\nCity parameter cannot be empty\n")
             raise Exception
 
         keyword = input("\nWrite your search keyword: \n"
                         "If you would like to add more than one keyword, "
-                        "please, use quotes. \n> ")
+                        "please, use quotes. \n ")
         if not keyword:
-            print("\nKeyword parameter cannot be empty\n")
+            print("\nKeyword parameter cannot be empty.")
             raise Exception
 
-        language = input("\nChoose your language: \n[en/es/pt/de] \n> "
+        language = input("\nChoose your language: \n[en/es/pt/de] \n "
                          ).lower()
         if language not in ["en", "es", "pt", "de"]:
             print(
                 "\nSelected language not supported. Default to en.\n")
             language = "en"
     except Exception:
-        print("\nFatal Error: Required parameter missing\n")
-        if input("Do you like to restart? [yes/no]: \n> ").lower() == "yes":
+        print("Fatal Error: Required parameter missing.\n")
+        if input("Do you like to restart? [yes/no]: \n "
+                 ).lower() == "yes":
             main()
         else:
             sys.exit(1)
@@ -104,25 +105,26 @@ def main():
           f' City: {city.capitalize()}\n'
           f' Language: {language}')
 
-    output = input("\nWould you like to print outputs?\n[yes/no]\n> ")
+    output = input("\nWould you like to print outputs?\n[yes/no] \n ")
     print('\nPreparing your data...\n')
-    time.sleep(2)
-
-    # call search_tweet function to retrieve tweets
+    
+    # Call search_tweet function to retrieve tweets
     tweets_df, search_result = search_tweet(
         loc, city, country, keyword, language, output)
+
     # Generate dataframe with tweet count by location
     count_loc = tweet_location_count(tweets_df, city, country, keyword, output)
 
     g_save = input('Would you like to save data on Google Spreadsheets?\n'
-                   '[yes/no]?\n> ')
+                   '[yes/no]?\n')
 
+    # Connect on google spreadsheets
     try:
+        creds = json.loads(os.environ.get('CREDS'))
         gc = gs.service_account_from_dict(creds, scopes=SCOPE)
-
     except Exception as e_Oauth:
         print(f'\nSorry, Oauth failed.\nError: {e_Oauth}\n'
-              f'Please check your CREDS.json file if you want to save your '
+              f'Please check your Google Credentials if you want to save your '
               f'data on google spreadsheets.\n')
 
     # Store data search your brand spreadsheet
@@ -130,14 +132,13 @@ def main():
         try:
             update_worksheet(gc, SEARCH_RESULT_SHEET, search_result)
             update_worksheet(gc, COUNTLOC_TWEETS_SHEET, count_loc)
-        except Exception:
-            print(" Unable to save into worksheet")
-
-        print(f'\nYour Tweets location table is saved on Google Spreadsheets'
+            print(f'\nYour Tweets location table is saved on Google Spreadsheets'
               f' file: {GSPREADSHEET}.')
-        tweets_location_link = "https://bit.ly/3iTDCH1"
-        print(f'{tweets_location_link}\n')
-
+            tweets_location_link = "https://bit.ly/3iTDCH1"
+            print(f'{tweets_location_link}\n')
+        except Exception:
+            print("Unable to save into worksheet.")
+       
     sys.exit(0)
 
 
@@ -161,7 +162,7 @@ def geo_location(city, country):
     except Exception:
         print("\nFatal Error: Unable to resolve country and city for"
               " geolocation.")
-        if input("Do you like to restart? [yes/no]: \n> ").lower() == "yes":
+        if input("Do you like to restart? [yes/no]: \n").lower() == "yes":
             main()
         else:
             sys.exit(1)
@@ -173,7 +174,7 @@ def search_tweet(loc, city, country, keyword, language, output):
     Twitter in max range of 100km. Enable user to add search keyword,
     preferred language and outputs search date, keyword and language chosen,
     tweet create date, text, username and location. Rename columns to user
-    friendly names and restrict dataframe to maximum 15 rows.
+    friendly names and restrict dataframes to maximum 15 rows.
     """
 
     new_search = keyword + "-filter:retweets"
@@ -189,12 +190,15 @@ def search_tweet(loc, city, country, keyword, language, output):
                       geocode="%f,%f,%dkm" %
                       (float(loc.latitude), float(loc.longitude), max_range),
                       tweet_mode='extended')
-
+        # Json from twitter with all data
         json_data = [r._json for r in tweets.items()]
+        # Dataframe created from twitter json
         df = pd.json_normalize(json_data)
+        # Add columns to tweets dataframe with user data 
         df['Keyword'] = keyword
         df['Language'] = language
         df['Search Date'] = pd.to_datetime("today")
+        # Select few columns from tweets dataframe 
         tweet_subset = (df[[
             'Keyword',
             'Language',
@@ -204,6 +208,7 @@ def search_tweet(loc, city, country, keyword, language, output):
             'created_at',
             'Search Date']])
         tweets_df = tweet_subset.copy()
+        # Rename columns to user friendly names
         tweets_df.rename(columns={
                     'created_at': 'Created at',
                     'user.screen_name': 'Username',
@@ -216,8 +221,8 @@ def search_tweet(loc, city, country, keyword, language, output):
         return tweets_df, tweets_df[:15]
 
     except Exception as e_tweets:
-        print(f'{"Sorry, an error has occured: "}\n{e_tweets} \n '
-              f'{"Check your Twitter API keys"}\n')
+        print(f'{"Sorry, an error has occured: "}\n{e_tweets} \n'
+              f'{"Check your Twitter API keys."}\n')
         sys.exit(0)
     else:
         return tweets_df, (tweets_df[:15])
@@ -230,24 +235,25 @@ def tweet_location_count(tweets_df, city, country, keyword, output):
     """
 
     try:
+        # Group tweets by location, count and sort values
         my_location = tweets_df.groupby("Location")
         my_location_grouped = my_location["Location"].count().sort_values(
             ascending=False).reset_index(name="Number of Users")
+        # Add columns to dataframe with user input data
         my_location_grouped['Keyword'] = keyword
         my_location_grouped['Search Date'] = pd.to_datetime("today")
         my_location_rearranged = my_location_grouped[[
             'Keyword', 'Location', 'Number of Users', 'Search Date']]
-        time.sleep(3)
-
+        
         if output.lower() == "yes":
             print(f'\n{"Summary of Tweets by Location"}\n\n'
                   f' {my_location_rearranged[:15]}\n')
 
         return my_location_rearranged[:15]
 
-    except Exception:
-        print("An error has ocurred: {e_location_count}"
-              "\nWe cannot deliver tweets by location table.\n")
+    except Exception as e_location_count:
+        print(f'{"An error has ocurred: "}{e_location_count}'
+              f'\n{"We cannot deliver tweets by location table."}\n')
 
 
 def update_worksheet(gc, p_sheet, p_search_result):
