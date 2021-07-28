@@ -2,7 +2,7 @@
 
 <p align=center>If you would like to check how your brand is being commented on Twitter, this is your app! 
 
-Search your brand will search tweets containing your preferred keyword in a 100km max range from your defined location and return to you a table with user's information, tweet content and where is the location with more results of your keyword. <br>
+Search your brand" will search tweets containing your preferred keyword in a 100km max range from your defined location and return to you a table with user's information, tweet content and the locations with more results of your keyword. In this current version, we even supporting Export of retrieved outputs into Google Spreadsheets, allowing further data analysis. <br>
  </p>
 
 <img src="images/readme_images/search_your_brand_mock_up.png">
@@ -19,18 +19,18 @@ Create an app that can search tweets using Twitter API and outputs tweets with a
 
 + As a user, I would like to be able to …
 
-... easily add my preferred information like City, Country, language and keyword;
-... easily check if my information is correct;
-... decide if I want to get outputs on my command line or just save data on Google spreadsheets;
-... check my created data on Google Spreadsheet.
+1. easily add my preferred information like City, Country, language and keyword;
+2. easily check if my information is correct;
+3. decide if I want to get outputs on my terminal or just save data on Google spreadsheets;
+4. check my created data on Google Spreadsheet.
 
 ### App Owner Stories
 
 + As App Owner Stories, I would like to be able to provide …
 
-... a simple, straightforward intuitive user experience;
-...  clear output data on the command line or  cloud storage;
-... user's feedback in case of wrong input.
+1. a simple, straightforward intuitive user experience;
+2. clear output data on the terminal or  cloud storage;
+3. user's feedback in case of wrong input.
 
 ## Functional Scope 
 
@@ -40,13 +40,13 @@ The following flowchart shows the flow of "Search your brand" graphically.
 
 ## Features
 
-#### Welcome message 
+### Welcome message 
 
  Welcome user to the app. 
 
 <img src="images/readme_images/greetings.png">
 
-#### User options
+### User options
 Enable user to choose some options as Country, City, Keyword and Preferred Language. 
 
 <img src="images/readme_images/options.png">
@@ -58,12 +58,12 @@ If City or Country options couldn't be validated by the geolocation function the
 Users can choose between four different languages to search on Twitter (English-en, Spanish-es, Portuguese-pt and German-de)
 The English language is set by default if the user doesn't want to set his own choice or write any wrong option. 
 
-#### Returning user defined options.
+### Returning user defined options.
 
 <img src="images/readme_images/returning-inputs.png">
 
-Allows the user to review options set to the app in order to search tweets and choose to get data output on the command line or not.  
-If the user set yes all the data collected from Twitter will be print on the command line. 
+Allows the user to review options set to the app in order to search tweets and choose to get data output on the termial or not.  
+If the user set yes all the data collected from Twitter will be print on the terminal. 
 
 <img src="images/readme_images/output_tweets.png">
 <img src="images/readme_images/output_tweetsloc.png">
@@ -73,9 +73,10 @@ Search date, keyword and language were added to the table (marked with a green l
 
 <img src="images/readme_images/tweets_table_explained.png">
 
-#### Google Spreadsheets save option
+### Google Spreadsheets save option
 
-Allows the user to save Tweets data created on Google Spreadsheets. A link for the spreadsheets file is also available to facilitate user navigation.  
+Allows the user to save Tweets data created on Google Spreadsheets. A link for current spreadsheets file deployed on Heroku is also available, facilitating users trying app there navigation.
+
 <img src="images/readme_images/output_save_gspread.png">
 
 * Tweets table on Gspreadsheets
@@ -89,11 +90,12 @@ Allows the user to save Tweets data created on Google Spreadsheets. A link for t
 
 I would like to ...
 
-... return to use argparse modules to make it easy to write user-friendly command-line interfaces;
-... add more language options on Tweets Search;
-... add options to search data in different social media like Instagram, Facebook and Tik Tok;
-... add a user option to save data on different files formats like CSV and APACHE PARQUET;
-... use tweets_count data frame to add a pin in a map to better visualization about tweets location.
+1. return to use argparse modules to make it easy to write user-friendly command-line interfaces;
+2. add more language options on Tweets Search;
+3. add options to search data in different social media like Instagram, Facebook and Tik Tok;
+4. add a user option to save data on different files formats like CSV and APACHE PARQUET;
+5. dinamic create a short link to the google spreadsheets defined;
+6. use tweets_count data frame to add a pin in a map to better visualization about tweets location.
 
 ## Languages Used
 
@@ -293,26 +295,22 @@ API will allow our Python project to access data on the Twitter website.
 
 ### Work based on other code
 
-[EarthLab](https://www.earthdatascience.org/courses/use-data-open-source-python/intro-to-apis/twitter-data-in-python/) - Used as a base for firsts pieces of code on this project.
-
-[Kdnuggets](https://www.kdnuggets.com/2017/03/beginners-guide-tweet-analytics-pandas.html) - Used to understand better all pandas library functions used on this project.
-
-SamOh/trend_map Github - Used to  write function to get API variables from .env file.
-
-W3 Schools - Used to write some error handling codes on functions.
-
+[EarthLab](https://www.earthdatascience.org/courses/use-data-open-source-python/intro-to-apis/twitter-data-in-python/) - Used as a base for firsts pieces of code on this project.<br>
+[Kdnuggets](https://www.kdnuggets.com/2017/03/beginners-guide-tweet-analytics-pandas.html) - Used to understand better all pandas library functions used on this project.<br>
+SamOh/trend_map Github - Used to  write function to get API variables from .env file.<br>
+W3 Schools - Used to write some error handling codes on functions.<br>
 [Learn Python with Rune](https://www.learnpythonwithrune.org/how-to-plot-locations-of-tweets-on-map-using-python-in-3-easy-steps/)- Used as a base for search tweets function.
 
-#### Acknowledgements
+# Acknowledgements
 
-To the Slack community as I have used the different channels to find answers to problems!
-Stack Overflow is a valuable resource for solving lots of issues.
-W3schools and Python libraries documentation for general reference.
++ To the Slack community as I have used the different channels to find answers to problems!
++ Stack Overflow is a valuable resource for solving lots of issues.
++ W3schools and Python libraries documentation for general reference.
 
 I would also like to thank:
 
-My husband Guilherme for all the support on stressful moments, help to figure out lots of bugs and for reviewing everything.
-My mentor Rahul Lakhanpal for his time, support and guidance.
-Code institute tutors, for help with several issues and bugs.
++ My husband Guilherme for all the support on stressful moments, help to figure out lots of bugs and for reviewing everything.
++ My mentor Rahul Lakhanpal for his time, support and guidance.
++ Code institute tutors, for help with several issues and bugs.
 
 
